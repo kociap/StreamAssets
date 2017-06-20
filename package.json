@@ -1,0 +1,24 @@
+{
+  "name": "youtube_streamin_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kociap/StreamingAssets.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kociap/StreamingAssets/issues"
+  },
+  "homepage": "https://github.com/kociap/StreamingAssets#readme",
+  "devDependencies": {
+    "express": "^4.15.3",
+    "opn": "^5.0.0",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1",
+    "socket.io": "^2.0.2"
+  }
+}

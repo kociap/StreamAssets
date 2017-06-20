@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='initial-scale=1, width=device-width'>
+</head>
+
+<body>
+    <script src='socket.io/socket.io.js'></script>
+    <script>
+        let socket = new io();
+        let url = new URL(window.location.href);
+        if (url.searchParams.has('code')) {
+            socket.emit('authentication-successful', url.searchParams.get('code'));
+            setTimeout(() => { window.location.replace('http://localhost:3000/authentication-successful') }, 15);
+        } else if(url.searchParams.has('error')) {
+            socket.emit('authentication-error', url.searchParams.get('error'));
+            setTimeout(() => { window.location.replace('http://localhost:3000/authentication-error') }, 15);
+        } else {
+            socket.emit('authentication-error', 'Unknown error');
+            setTimeout(() => { window.location.replace('http://localhost:3000/authentication-error') }, 15);
+        }
+    </script>
+</body>
+
+</html>

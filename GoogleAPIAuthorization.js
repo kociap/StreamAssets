@@ -3,6 +3,7 @@ const requestPromise = require('request-promise');
 const fs = require('fs');
 const errorSystem = require('./errorSystem.js');
 const applicationVariables = require('./applicationVariables.js');
+const TokenData = require('./TokenData.js');
 
 /**
  * Class for authorizing access to various google apis
@@ -16,6 +17,7 @@ module.exports = class GoogleAPIAuthorization {
         this.socketio = socketio;
         this.tokens = {};
         this.authorizeAccessPromise = null;
+        this.codes = {};
     }
 
     /**
@@ -27,10 +29,26 @@ module.exports = class GoogleAPIAuthorization {
     }
 
     /**
+     * @param {TokenData} tokens 
+     * @param {string} scope 
+     */
+    setTokenForScope(tokens, scope) {
+        this.tokens[scope] = tokens;
+    }
+
+    /**
      * @returns {object} object mapping scope to token data object
      */
     getTokens() {
         return this.tokens;
+    }
+
+    /**
+     * @param {string} scope 
+     * @returns {TokenData}
+     */
+    getTokensForScope(scope) {
+        return this.tokens[scope];
     }
 
     /**
@@ -41,18 +59,20 @@ module.exports = class GoogleAPIAuthorization {
     }
 
     /**
+     * Set authentication code
+     * @param {string} code Authentication code
+     */
+    setCodeForScope(scope, code) {
+        this.codes[scope] = code;
+    }
+
+    /**
      * @private
      * @param {string} scope 
      * @param {object} tokenData 
      */
     updateTokenInformations(scope, tokenData) {
-        if (!this.tokens.hasOwnProperty(scope)) {
-            this.tokens[scope] = tokenData;
-            this.tokens[scope].expires_in = this.tokens[scope].expires_in * 1000 + Date.now();
-        } else {
-            this.tokens[scope].expires_in = tokenData.expires_in * 1000 + Date.now();
-            this.tokens[scope].access_token = tokenData.access_token;
-        }
+        this.tokens[scope] = new TokenData(tokenData.access_token, tokenData.refresh_token, tokenData.token_type, tokenData.expires_in);
     }
 
     /**
@@ -62,7 +82,7 @@ module.exports = class GoogleAPIAuthorization {
      * @param {string} scope Single api scope
      * @returns {Promise<string, string>} Resolves with authentication token or error stack if required parameters are not specified
      */
-    getAuthenticationToken(scope) {
+    requestAuthenticationCode(scope) {
         if(!scope || !this.redirectURI) {
             let stacktrace = '';
             if (!scope) {
@@ -140,10 +160,10 @@ module.exports = class GoogleAPIAuthorization {
      */
     refreshAccessToken(scope) {
         // Check whether currently owned access token hasn't yet expired
-        if (this.tokens[scope].expires_in >= Date.now() + 1000) {
+        if (this.tokens[scope].expirationDate >= Date.now() + 1000) {
             // Access token still valid
             // Break the execution because we have working access token
-            return Promise.resolve(this.tokens[scope].access_token);
+            return Promise.resolve(this.tokens[scope].accessToken);
         }
 
         return new Promise((resolve, reject) => {
@@ -153,7 +173,7 @@ module.exports = class GoogleAPIAuthorization {
                 uri: buildURI('https://www.googleapis.com/oauth2/v4/token', {
                     client_id: applicationVariables.clientID,
                     client_secret: applicationVariables.clientSecret,
-                    refresh_token: this.tokens[scope].refresh_token,
+                    refresh_token: this.tokens[scope].refreshToken,
                     grant_type: 'refresh_token'
                 }), 
                 json: true 
@@ -162,14 +182,7 @@ module.exports = class GoogleAPIAuthorization {
                 resolve(authorizationData.access_token);
             }).catch((error) => {
                 errorSystem.log(applicationVariables.errorLogFile, 'Could not refresh access token', errorSystem.stacktrace(error));
-
-                this.authorizeNewAccessToken(scope)
-                .then((accessToken) => {
-                    resolve(accessToken);
-                }).catch((error) => {
-                    errorSystem.log(applicationVariables.errorLogFile, "Failed to authorize new access token", errorSystem.stacktrace(error));
-                    reject(error);
-                });
+                reject(error);
             });
         });
     }
@@ -181,8 +194,15 @@ module.exports = class GoogleAPIAuthorization {
      */
     authorizeNewAccessToken(scope) {
         return new Promise((resolve, reject) => {
-            this.getAuthenticationToken(scope)
-            .then((authenticationToken) => {
+            let authenticationCodePromise;
+            if(this.codes.hasOwnProperty(scope)) {
+                authenticationCodePromise = Promise.resolve(this.codes[scope]);
+                delete this.codes[scope];
+            } else {
+                authenticationCodePromise = this.requestAuthenticationCode(scope);
+            }
+
+            authenticationCodePromise.then((authenticationToken) => {
                 this.exchangeToken(authenticationToken)
                 .then((authorizationData) => {
                     // Inform the page about successful authorization
@@ -220,7 +240,14 @@ module.exports = class GoogleAPIAuthorization {
             this.authorizeAccessPromise = this.authorizeNewAccessToken(scope);
         }
 
-        return this.authorizeAccessPromise.then(() => { this.authorizeAccessPromise = null; }).catch(() => { this.authorizeAccessPromise = null; });
+        return this.authorizeAccessPromise
+            .then((code) => { 
+                this.authorizeAccessPromise = null;
+                return code;
+            }).catch((error) => { 
+                this.authorizeAccessPromise = null; 
+                throw error; 
+            });
     }
 
     /**
@@ -231,16 +258,17 @@ module.exports = class GoogleAPIAuthorization {
      * @param {string} api API scope
      * @param {string} scope API endpoint
      * @param {object} params Request parameters
+     * @param {{method: string; api: string; scope: string; params: object}} requestData
      * @returns {Promise<object>}
      */
-    makeAuthorizedRequest(method, api, scope, params) {
+    makeAuthorizedRequest(requestData) {
         return new Promise((resolve, reject) => {
-            this.authorizeAccess(api)
+            this.authorizeAccess(requestData.api)
             .then((accessToken) => {
-                params.access_token = accessToken;
+                requestData.params.access_token = accessToken;
                 return requestPromise({
-                    method: method, 
-                    uri: buildURI(scope, params), 
+                    method: requestData.method, 
+                    uri: buildURI(requestData.scope, requestData.params), 
                     json: true
                 }).then((response) => {
                     resolve(response);

@@ -2,9 +2,9 @@ module.exports = function(app) {
     app.get('/', (req, res) => {
         res.sendFile(__dirname + '/index.html');
     });
-    
-    app.get('/authentication-finalizing', (req, res) => {
-        res.sendFile(__dirname + '/authentication-finalizer.html');
+
+    app.get('/dashboard', (req, res) => {
+        res.sendFile(__dirname + '/index.html');
     });
 
     app.get('/authentication-successful', (req, res) => {
@@ -13,10 +13,6 @@ module.exports = function(app) {
 
     app.get('/authentication-error', (req, res) => {
         res.sendFile(__dirname + '/authentication-error.html');
-    });
-
-    app.get('/access-granted', (req, res) => {
-        res.sendFile(__dirname + '/index.html');
     });
 
     app.get(/[^/]+\.html/, (req, res) => {

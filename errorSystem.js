@@ -22,7 +22,7 @@ let log = (fileName, description, message) => {
  * @returns {string}
  */
 let stacktrace = (message) => {
-    return new Error().stack;
+    return new Error(message).stack;
 };
 
 module.exports = {

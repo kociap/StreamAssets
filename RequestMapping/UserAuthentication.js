@@ -1,7 +1,11 @@
 const applicationVariables = rootRequire('applicationVariables.js');
-const PendingAuthenticationRequestService = rootRequire('PendingAuthenticationRequestService.js');
+const PendingRequestService = rootRequire('PendingRequestService.js');
 const RoomsController = rootRequire('RoomsController.js');
 const ErrorSystem = rootRequire('errorSystem.js');
+const GoogleAPIAuthorization = require('../GoogleAPIAuthorization.js');
+const YoutubeService = require('../YoutubeService.js');
+const SessionManager = require('../SessionManager.js');
+const buildURI = require('../utility.js').buildURI;
 
 function processAuthenticationCode(code, redirectURI) {
     let apiAuthorizer = new GoogleAPIAuthorization(_io);
@@ -27,13 +31,24 @@ function processAuthenticationCode(code, redirectURI) {
 }
 
 module.exports = (app) => {
-    app.get('/authenticate-user', (req, res) => {
-        let userID = req.query['Session-ID'];
+    app.get('/authenticate-user/:sessionID', (req, res) => {
+        let sessionID = req.params.sessionID;
 
-        let promise = PendingAuthenticationRequestService.createPendingRequest(userID);
+        let promise = PendingRequestService.createPendingRequest(sessionID);
 
         promise.then((code) => {
-            RoomsController.processAuthenticationCode(code, applicationVariables.domain + '/authentication-finalizing/' + userID + '/');
+            GoogleAPIAuthorization.exchangeCode(code, applicationVariables.domain + '/authentication-finalizing/' + sessionID)
+            .then((tokenData) => {
+                SessionManager.getSession(sessionID).setPrivateData('Token-Data', tokenData);
+                YoutubeService.getChannelIDWithToken(tokenData.accessToken)
+                .then((channelID) => {
+
+                }).catch((error) => {
+                    ErrorSystem.log(applicationVariables.errorLogFile, 'Could not fetch channel id', ErrorSystem.stacktrace(error));
+                })
+            }).catch((error) => {
+                ErrorSystem.log(applicationVariables.errorLogFile, 'Could not authorize access', ErrorSystem.stacktrace(error));
+            });
         }).catch((error) => {
             ErrorSystem.log(applicationVariables.errorLogFile, 'Could not authenticate user', ErrorSystem.stacktrace(error));
         });
@@ -41,34 +56,20 @@ module.exports = (app) => {
         res.redirect(buildURI('https://accounts.google.com/o/oauth2/auth', {
             client_id: applicationVariables.clientID,
             scope: applicationVariables.youtubeAPIScope,
-            redirect_uri: applicationVariables.domain + '/authentication-finalizing/' + userID + '/',
+            redirect_uri: applicationVariables.domain + '/authentication-finalizing/' + sessionID,
             response_type: 'code',
             access_type: 'offline'
         }));
 
     });
 
-    app.get('/authentication-finalizing/:userID/', (req, res) => {
+    app.get('/authentication-finalizing/:sessionID/', (req, res) => {
         if(req.query.code) {
-            PendingAuthenticationRequestService.resolvePendingRequest(req.params.userID, req.query.code);
+            PendingRequestService.resolvePendingRequest(req.params.sessionID, req.query.code);
             res.redirect('/dashboard');
         } else {
-            PendingAuthenticationRequestService.rejectPendingRequest(req.params.userID, 'Authentication error');
+            PendingRequestService.rejectPendingRequest(req.params.sessionID, 'Authentication error');
             res.redirect('/?error=' + encodeURIComponent('Something went wrong, please try again in a few minutes'));
         }
     });
 };
-
-/**
- * Builds uri with given base request uri and parameters
- * @param {string} requestURI 
- * @param {object} params 
- * @returns {string}
- */
-function buildURI(requestURI, params) {
-    let requestParams = [];
-    for (let key of Object.keys(params)) {
-        requestParams.push(`${key}=${params[key]}`);
-    }
-    return requestURI + '?' + requestParams.join('&');
-}

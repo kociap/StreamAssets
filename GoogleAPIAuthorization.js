@@ -4,17 +4,14 @@ const fs = require('fs');
 const errorSystem = require('./errorSystem.js');
 const applicationVariables = require('./applicationVariables.js');
 const TokenData = require('./TokenData.js');
+const buildURI = require('./utility.js').buildURI;
 
 /**
  * Class for authorizing access to various google apis
  */
 module.exports = class GoogleAPIAuthorization {
-    /**
-     * @param {SocketIO.Server} socketio 
-     */
-    constructor(socketio) {
+    constructor() {
         this.redirectURI = null;
-        this.socketio = socketio;
         this.tokens = {};
         this.authorizeAccessPromise = null;
         this.codes = {};
@@ -77,6 +74,7 @@ module.exports = class GoogleAPIAuthorization {
 
     /**
      * @private
+     * Note: Rebuild it so that it doesn't depend on sockets |
      * Opens a page in the web browser with google's authentication and waits for the user to complete authentication
      * On response from the page it sends authentication-successful or authentication-error 
      * @param {string} scope Single api scope
@@ -99,23 +97,36 @@ module.exports = class GoogleAPIAuthorization {
         }
 
         return new Promise((resolve, reject) => {
-            this.socketio.on('connection', (socket) => {
-                // Wait for a response from the opened page
-                socket.on('authentication-successful', (token) => {
-                    resolve(token);
-                }).on('authentication-error', (error) => {
-                    errorSystem.log(applicationVariables.errorLogFile, "Failed to obtain authentication token", errorSystem.stacktrace(error));
-                    reject(error);
-                });
-            });
             // Open authentication page
-            opn(buildURI('https://accounts.google.com/o/oauth2/auth', {
+            // buildURI('https://accounts.google.com/o/oauth2/auth', {
+            //     client_id: applicationVariables.clientID,
+            //     scope: scope,
+            //     redirect_uri: this.redirectURI,
+            //     response_type: 'code',
+            //     access_type: 'offline'
+            // })
+        });
+    }
+
+    /**
+     * 
+     * @param {*} code 
+     * @param {*} redirectURI 
+     * @returns {Promise<TokenData>}
+     */
+    static exchangeCode(code, redirectURI) {
+        return requestPromise({
+            method: 'POST',
+            uri: buildURI('https://www.googleapis.com/oauth2/v4/token', {
+                code: code,
+                grant_type: 'authorization_code',
                 client_id: applicationVariables.clientID,
-                scope: scope,
-                redirect_uri: this.redirectURI,
-                response_type: 'code',
-                access_type: 'offline'
-            }));
+                client_secret: applicationVariables.clientSecret,
+                redirect_uri: this.redirectURI
+            }),
+            json: true 
+        }).then((response) => {
+            return new TokenData(response.access_token, response.refresh_token, response.token_type, response.expires_in);
         });
     }
 
@@ -254,10 +265,6 @@ module.exports = class GoogleAPIAuthorization {
      * Requests data from given api endpoint.
      * Doesn't check request parameters.
      * Automatically appends access_token to request parameters
-     * @param {string} method Request method
-     * @param {string} api API scope
-     * @param {string} scope API endpoint
-     * @param {object} params Request parameters
      * @param {{method: string; api: string; scope: string; params: object}} requestData
      * @returns {Promise<object>}
      */
@@ -274,24 +281,30 @@ module.exports = class GoogleAPIAuthorization {
                     resolve(response);
                 });
             }).catch((error) => {
-                errorSystem.log(applicationVariables.errorLogFile, "Error: Could not make an authorized request", errorSystem.stacktrace(error));
+                errorSystem.log(applicationVariables.errorLogFile, "Could not make an authorized request", errorSystem.stacktrace(error));
                 reject(error);
             });
         });
-
     }
-}
 
-/**
- * Builds uri with given base request uri and parameters
- * @param {string} requestURI 
- * @param {object} params 
- * @returns {string}
- */
-function buildURI(requestURI, params) {
-    let requestParams = [];
-    for(let key of Object.keys(params)) {
-        requestParams.push(`${key}=${params[key]}`);
+    /**
+     * @param {string} accessToken
+     * @param {{method: string; api: string; scope: string; params: object}} requestData
+     * @returns {Promise<object>}
+     */
+    makeRequest(accessToken, requestData) {
+        return new Promise((resolve, reject) => {
+            requestData.params.access_token = accessToken;
+            return requestPromise({
+                method: requestData.method, 
+                uri: buildURI(requestData.scope, requestData.params), 
+                json: true
+            }).then((response) => {
+                resolve(response);
+            }).catch((error) => {
+                errorSystem.log(applicationVariables.errorLogFile, "Request failed", errorSystem.stacktrace(error));
+                reject(error);
+            });
+        });
     }
-    return requestURI + '?' + requestParams.join('&');
 }

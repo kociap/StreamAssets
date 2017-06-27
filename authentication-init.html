@@ -7,8 +7,24 @@
 </head>
 
 <body>
+    <script src='/client-library/request-promise.js'></script>
     <script>
-        
+        if(sessionStorage.getItem('Session-ID')) {
+            console.log('session');
+            // location.replace('http://localhost:3000/dashboard');
+        } else {
+            requestPromise({
+                method: 'GET',
+                uri: '/sessions/new-session',
+                json: true
+            }).then((response) => {
+                console.log(response);
+                sessionStorage.setItem('Session-ID', response['Session-ID']);
+                location.replace('http://localhost:3000/authenticate-user/' + response['Session-ID']);
+            }).catch((error) => {
+                // location.replace('http://localhost:3000/?error=' + encodeURIComponent('Cound not create session'));
+            });
+        }
     </script>
 </body>
 

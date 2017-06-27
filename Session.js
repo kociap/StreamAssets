@@ -3,8 +3,9 @@ module.exports = class Session {
     /**
      * @param {object} data
      */
-    constructor(data) {
+    constructor(data, privateData) {
         this.data = data || {};
+        this.privateData = privateData || {};
     }
 
     setData(key, value) {
@@ -13,6 +14,22 @@ module.exports = class Session {
 
     getData(key) {
         return this.data[key] || null;
+    }
+
+    getAllData() {
+        return this.data();
+    }
+
+    setPrivateData(key, value) {
+        this.privateData[key] = value;
+    }
+
+    getPrivateData(key) {
+        return this.privateData[key] || null;
+    }
+
+    getAllPrivateData() {
+        return this.privateData;
     }
 
     /**

@@ -3,16 +3,14 @@
     <head>
         <meta charset='utf-8'>
         <meta name='viewport' content='initial-scale=1, width=device-width'>
+        <style>
+            a {
+                color: #FFFFFF;
+                text-decoration: none;
+            }
+        </style>
     </head>
-    <body style='background-color: rgb(40, 40, 40);'>
-        <script src='socket.io/socket.io.js'></script>
-        <script>
-            let socket = new io();
-            socket.on('youtube-subscribers-update', (response) => {
-                console.log(response);
-            }).on('youtube-statistics-update', (response) => {
-                console.log(response);
-            });
-        </script>
+    <body style='background-color: rgb(40, 40, 40); color: #FFFFFF;'>
+        <a href='/authentication-init'>Authentication init</a>
     </body>
 </html>

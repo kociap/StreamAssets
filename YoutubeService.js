@@ -1,5 +1,6 @@
 const applicationVariables = require('./applicationVariables.js');
 const errorSystem = require("./errorSystem.js");
+const GoogleAPIAuthorization = require('./GoogleAPIAuthorization.js');
 
 const yotubeScopes = {
     channels: 'https://www.googleapis.com/youtube/v3/channels',
@@ -33,6 +34,26 @@ module.exports = class YoutubeService {
                 errorSystem.log(applicationVariables.errorLogFile, "Could not authorize access", errorSystem.stacktrace(error));
                 reject(error);
             })
+        });
+    }
+
+    /**
+     * Gets channel id using access token
+     * @param {string} accessToken 
+     * @returns {Promise<string>}
+     */
+    static getChannelIDWithToken(accessToken) {
+        return GoogleAPIAuthorization.makeRequest(accessToken, {
+            method: 'GET',
+            api: applicationVariables.youtubeAPIScope, 
+            scope: yotubeScopes.channels, 
+            params: { 
+                key: applicationVariables.youtubeAPIKey, 
+                part: 'id', 
+                mine: 'true' 
+            }
+        }).then((response) => {
+            return response.items[0].id;
         });
     }
 

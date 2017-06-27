@@ -46,17 +46,17 @@ function getPendingPromise(ID) {
 /**
  * Resolves promise with given ID and deletes it from pending list
  * @param {string} ID Unique ID
- * @param {string} code Authentication code
+ * @param {*} data 
  * @returns {Promise} resolved promise
  * @throws Error if promise with ID doesn't exist
  */
-function resolvePendingPromise(ID, code) {
+function resolvePendingPromise(ID, data) {
     if(isUnique(ID)) {
         throw new Error("Promise with given ID doesn't exist");
     }
 
     let promise = pendingPromises[ID];
-    pendingPromises[ID].resolve(code);
+    pendingPromises[ID].resolve(data);
     delete pendingPromises[ID];
     return promise;
 }

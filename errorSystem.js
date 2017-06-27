@@ -1,4 +1,5 @@
 const fs = require('fs');
+const toString = require('utility.js').toString;
 
 /**
  * Logs error log to given file
@@ -22,7 +23,7 @@ let log = (fileName, description, message) => {
  * @returns {string}
  */
 let stacktrace = (message) => {
-    return new Error(message).stack;
+    return new Error(toString(message)).stack;
 };
 
 module.exports = {

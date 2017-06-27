@@ -19,14 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const requestMapper = require('./requestMapper.js')(app, io);
 const sessions = require('./RequestMapping/Sessions.js')(app);
 const userAuthenticationMapper = require('./RequestMapping/UserAuthentication.js')(app);
-const user = require('./RequestMapping/Users.js');
 
-const GoogleAPIAuthorization = require('./GoogleAPIAuthorization.js');
-const YoutubeService = require('./YoutubeService.js');
-const errorSystem = require('./errorSystem.js');
-const EventSystem = require('events');
-const Events = new EventSystem();
-const YoutubeRoomRequester = require("./YoutubeRoomRequester.js");
 const applicationVariables = require('./applicationVariables.js');
 const RoomsController = require('./RoomsController.js');
 
@@ -38,7 +31,7 @@ http.listen(Number(applicationVariables.serverPort), () => {
     console.log(`Server launched at ${applicationVariables.serverPort}`);
 });
 
-RoomsController.init();
+RoomsController.init(io);
 
 // /**
 //  * Loads tokens asynchronously

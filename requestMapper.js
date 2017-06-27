@@ -1,18 +1,18 @@
-module.exports = function(app) {
+module.exports = (app) => {
     app.get('/', (req, res) => {
         res.sendFile(__dirname + '/index.html');
     });
 
     app.get('/dashboard', (req, res) => {
-        res.sendFile(__dirname + '/index.html');
+        res.sendFile(__dirname + '/dashboard.html');
     });
 
-    app.get('/authentication-successful', (req, res) => {
-        res.sendFile(__dirname + '/authentication-successful.html');
+    app.get('/authentication-init', (req, res) => {
+        res.sendFile(__dirname + '/authentication-init.html');
     });
-
-    app.get('/authentication-error', (req, res) => {
-        res.sendFile(__dirname + '/authentication-error.html');
+    
+    app.get('/client-library/:fileName', (req, res) => {
+        res.sendFile(__dirname + '/client-lib/' + req.params.fileName);
     });
 
     app.get(/[^/]+\.html/, (req, res) => {
@@ -30,4 +30,5 @@ module.exports = function(app) {
     app.get(/[^/\\]+\.js/, (req, res) => {
         res.sendFile(__dirname + req.path, { headers: {"Content-Type": "text/javascript"} });
     });
+
 }

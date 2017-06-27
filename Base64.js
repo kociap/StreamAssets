@@ -90,6 +90,6 @@ var Base64 = {
 }
 
 module.exports = {
-    encode: Base64.encode,
-    decode: Base64.decode
+    encode: (e) => { return Base64.encode(e); },
+    decode: (e) => { return Base64.decode(e); }
 };

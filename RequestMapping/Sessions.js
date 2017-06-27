@@ -6,9 +6,9 @@ const Base64 = require('../Base64.js');
 module.exports = (app) => {
     app.get('/sessions/new-session', (req, res) => {
         let sessionID = Base64.encode(String(Date.now()));
-        Sessions.createEmptySession();
+        Sessions.createEmptySession(sessionID);
         res.status(201);
-        res.send({ "Session-ID": sessionID });
+        res.send(JSON.stringify({ "Session-ID": sessionID }));
     });
 
     app.get('/sessions/:sessionID', (req, res) => {
@@ -16,12 +16,13 @@ module.exports = (app) => {
         if(Sessions.exists(req.params.sessionID) && !Sessions.expired(req.params.sessionID)) {
             res.status(200);
             res.cookie('Session-ID', req.params.sessionID);
-            res.send(Sessions.getSession(req.params.sessionID));
+            res.send(JSON.stringify(Sessions.getSession(req.params.sessionID).getAllData()));
         } else {
             let newSessionID = Base64.encode(String(Date.now()));
             res.status(201);
             res.cookie('Session-ID', newSessionID);
-            res.send(Sessions.createEmptySession(newSessionID));
+            Sessions.createEmptySession(newSessionID);
+            res.send(JSON.stringify({}));
         }
     });
 
@@ -31,12 +32,12 @@ module.exports = (app) => {
         if(Sessions.exists(req.params.sessionID) && !Sessions.expired(req.params.sessionID)) {
             res.status(200);
             res.cookie('Session-ID', req.params.sessionID);
-            res.send(Sessions.createEmptySession(newSessionID).getDataByKeys(requestedKeys));
+            res.send(JSON.stringify(Sessions.createEmptySession(newSessionID).getDataByKeys(requestedKeys)));
         } else {
             let newSessionID = Base64.encode(String(Date.now()));
             res.status(201);
             res.cookie('Cookie-ID', newSessionID);
-            res.send(Sessions.createEmptySession(newSessionID).getDataByKeys(requestedKeys));
+            res.send(JSON.stringify(Sessions.createEmptySession(newSessionID).getDataByKeys(requestedKeys)));
         }
     });
 

@@ -15,10 +15,12 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const Router = require('./Router.js') = app;
+
 // Request mapping
 const requestMapper = require('./requestMapper.js')(app, io);
 const sessions = require('./RequestMapping/Sessions.js')(app);
-const userAuthenticationMapper = require('./RequestMapping/UserAuthentication.js')(app);
+// const userAuthenticationMapper = require('./RequestMapping/UserAuthentication.js')(app);
 
 const applicationVariables = require('./applicationVariables.js');
 const RoomsController = require('./RoomsController.js');

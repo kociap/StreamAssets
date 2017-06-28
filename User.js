@@ -1,4 +1,9 @@
 module.exports = class User {
+    /**
+     * @param {string} channelID 
+     * @param {string|null} widgetKey 
+     * @param {TokenData|null} tokenData 
+     */
     constructor(channelID, widgetKey, tokenData) {
         this.channelID = channelID || null;
         this.widgetKey = widgetKey || null;

@@ -16,7 +16,17 @@ function getUserByChannelID(channelID) {
     }) || null;
 }
 
+/**
+ * @param {string} widgetKey 
+ */
+function getUserByWidgetKey(widgetKey) {
+    return usersFile.find((user) => {
+        return user.widgetKey === widgetKey;
+    }) || null;
+}
+
 module.exports = {
     addUser: addUser,
-    getUserByChannelID: getUserByChannelID
+    getUserByChannelID: getUserByChannelID,
+    getUserByWidgetKey: getUserByWidgetKey
 }

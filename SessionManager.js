@@ -8,7 +8,7 @@ let sessions = {};
  * @throws
  */
 function createEmptySession(sessionID) {
-    if(sessions.hasOwnProperty(sessionID) && !expired(sessionID)) {
+    if(exists(sessionID)) {
         throw new Error("Session with ID " + sessionID + " already exists");
     }
 
@@ -16,7 +16,7 @@ function createEmptySession(sessionID) {
 }
 
 function createSession(sessionID, data) {
-    if(sessions.hasOwnProperty(sessionID) && !expired(sessionID)) {
+    if(exists(sessionID)) {
         throw new Error("Session with ID " + sessionID + " already exists");
     }
 
@@ -39,15 +39,10 @@ function exists(sessionID) {
     return sessions.hasOwnProperty(sessionID);
 }
 
-function expired(sessionID) {
-    return sessions[sessionID].expirationDate <= Date.now();
-}
-
 module.exports = {
     createSession: createSession,
     createEmptySession: createEmptySession,
     endSession: endSession,
     getSession: getSession,
     exists: exists,
-    expired: expired
 };

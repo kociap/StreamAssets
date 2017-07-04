@@ -1,6 +1,7 @@
 const applicationVariables = require('./applicationVariables.js');
 const errorSystem = require("./errorSystem.js");
 const GoogleAPIAuthorization = require('./GoogleAPIAuthorization.js');
+const Errors = require('Errors.js');
 
 const yotubeScopes = {
     channels: 'https://www.googleapis.com/youtube/v3/channels',
@@ -52,6 +53,8 @@ module.exports = class YoutubeService {
                 part: 'id', 
                 mine: 'true' 
             }
+        }).catch((error) => {
+            throw new Errors.RequestError(error);
         }).then((response) => {
             return response.items[0].id;
         });

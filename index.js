@@ -19,8 +19,8 @@ const Router = require('./Router.js') = app;
 
 // Request mapping
 const requestMapper = require('./requestMapper.js')(app, io);
-const sessions = require('./RequestMapping/Sessions.js')(app);
-// const userAuthenticationMapper = require('./RequestMapping/UserAuthentication.js')(app);
+require('./RequestMapping/Sessions.js');
+require('./RequestMapping/UserAuthentication.js');
 
 const applicationVariables = require('./applicationVariables.js');
 const RoomsController = require('./RoomsController.js');

@@ -14,24 +14,6 @@ app.get('/authenticate-user/:sessionID', (req, res) => {
     let sessionID = req.params.sessionID;
     let promise = PendingRequestService.createPendingRequest(sessionID);
 
-    promise.then((code) => {
-        GoogleAPIAuthorization.exchangeCode(code, applicationVariables.domain + '/authentication-finalizing/' + sessionID)
-        .then((tokenData) => {
-            SessionManager.getSession(sessionID).setPrivateData('Token-Data', tokenData);
-            YoutubeService.getChannelIDWithToken(tokenData.accessToken)
-            .then((channelID) => {
-                SessionManager.getSession(sessionID).setPrivateData('Channel-ID', channelID);
-                DatabaseManager.addUser(new User(channelID, null, tokenData));
-            }).catch((error) => {
-                ErrorSystem.log(applicationVariables.errorLogFile, 'Could not fetch channel id', ErrorSystem.stacktrace(error));
-            });
-        }).catch((error) => {
-            ErrorSystem.log(applicationVariables.errorLogFile, 'Could not authorize access', ErrorSystem.stacktrace(error));
-        });
-    }).catch((error) => {
-        ErrorSystem.log(applicationVariables.errorLogFile, 'Could not authenticate user', ErrorSystem.stacktrace(error));
-    });
-
     res.redirect(buildURI('https://accounts.google.com/o/oauth2/auth', {
         client_id: applicationVariables.clientID,
         scope: applicationVariables.youtubeAPIScope,
@@ -43,11 +25,17 @@ app.get('/authenticate-user/:sessionID', (req, res) => {
 });
 
 app.get('/authentication-finalizing/:sessionID/', (req, res) => {
+    let sessionID = req.params.sessionID;
     if(req.query.code) {
-        PendingRequestService.resolvePendingRequest(req.params.sessionID, req.query.code);
-        res.redirect('/dashboard');
+        PendingRequestService.resolvePendingRequest(req.params.sessionID, req.query.code)
+        .then((code) => {
+            SessionManager.getSession(sessionID).setPrivateData('Authentication-Code', code);
+            res.redirect('/dashboard');
+        });
     } else {
-        PendingRequestService.rejectPendingRequest(req.params.sessionID, 'Authentication error');
-        res.redirect('/?error=' + encodeURIComponent('Something went wrong, please try again in a few minutes'));
+        PendingRequestService.rejectPendingRequest(req.params.sessionID, 'Authentication error').catch((error) => {
+            ErrorSystem.log(applicationVariables.errorLogFile, 'Could not authenticate user', ErrorSystem.stacktrace(error));
+            res.redirect('/?error=' + encodeURIComponent('Something went wrong, please try again in a few minutes'));
+        });
     }
 });

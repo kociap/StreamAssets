@@ -1,13 +1,23 @@
 const ErrorSystem = require('errorSystem.js');
 const fs = require('fs');
+const Errors = require('Errors.js');
 
 let usersFile = 'users.txt';
 
 let users = JSON.parse(fs.readFileSync(usersFile, {encoding: 'utf-8'}));
 
 function addUser(user) {
-    users.push(user);
-    fs.writeFileSync(usersFile, JSON.stringify(users));
+    return new Promise((resolve, reject) => {
+        fs.writeFile(usersFile, JSON.stringify(users), (error) => {
+            if(error) {
+                reject(new Errors.DatabaseError(error));
+                return;
+            }
+            
+            users.push(user);
+            resolve();
+        });
+    })
 }
 
 function getUserByChannelID(channelID) {

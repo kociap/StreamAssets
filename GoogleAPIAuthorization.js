@@ -5,6 +5,7 @@ const errorSystem = require('./errorSystem.js');
 const applicationVariables = require('./applicationVariables.js');
 const TokenData = require('./TokenData.js');
 const buildURI = require('./utility.js').buildURI;
+const Errors = require('Errors.js');
 
 /**
  * Class for authorizing access to various google apis
@@ -125,6 +126,8 @@ module.exports = class GoogleAPIAuthorization {
                 redirect_uri: this.redirectURI
             }),
             json: true 
+        }).catch((error) => {
+            throw new Errors.AuthorizationError(error);
         }).then((response) => {
             return new TokenData(response.access_token, response.refresh_token, response.token_type, response.expires_in);
         });

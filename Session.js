@@ -12,6 +12,10 @@ module.exports = class Session {
         this.data[key] = value;
     }
 
+    deleteData(key) {
+        delete this.data[key];
+    }
+
     getData(key) {
         return this.data[key] || null;
     }
@@ -22,6 +26,10 @@ module.exports = class Session {
 
     setPrivateData(key, value) {
         this.privateData[key] = value;
+    }
+
+    deletePrivateData(key) {
+        delete this.privateData[key];
     }
 
     getPrivateData(key) {

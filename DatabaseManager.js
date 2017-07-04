@@ -1,10 +1,23 @@
 const ErrorSystem = require('./errorSystem.js');
 const fs = require('fs');
 const Errors = require('./Errors.js');
+const ApplicationVariables = require('./applicationVariables.js');
 
 let usersFile = 'users.txt';
 
-let users = JSON.parse(fs.readFileSync(usersFile, {encoding: 'utf-8'}));
+let users = [];
+
+fs.readFile(__dirname + '/' + usersFile, { encoding: 'utf-8' }, (error, data) => {
+    if(error) {
+        ErrorSystem.log(ApplicationVariables.errorLogFile, 'File read failed', ErrorSystem.stacktrace(error));
+    } else {
+        try {
+            users = JSON.parse(data);
+        } catch(e) {
+            ErrorSystem.log(ApplicationVariables.errorLogFile, 'Syntax error in read data', e.stacktrace);
+        }
+    }
+});
 
 function addUser(user) {
     return new Promise((resolve, reject) => {

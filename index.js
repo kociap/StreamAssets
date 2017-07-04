@@ -15,7 +15,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const Router = require('./Router.js') = app;
+require('./Router.js').setRouter(app);
 
 // Request mapping
 const requestMapper = require('./requestMapper.js')(app, io);

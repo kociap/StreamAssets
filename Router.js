@@ -1,2 +1,9 @@
 let app = null;
-module.exports = app;
+module.exports = {
+    setRouter: (router) => {
+        app = router;
+    },
+    getRouter: () => {
+        return app;
+    }
+}

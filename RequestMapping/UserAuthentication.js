@@ -8,7 +8,7 @@ const SessionManager = require('../SessionManager.js');
 const buildURI = require('../utility.js').buildURI;
 const User = require('../User.js');
 const DatabaseManager = require('../DatabaseManager.js');
-const app = require('../Router.js');
+const app = require('../Router.js').getRouter();
 
 app.get('/authenticate-user/:sessionID', (req, res) => {
     let sessionID = req.params.sessionID;

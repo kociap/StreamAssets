@@ -5,7 +5,7 @@ const errorSystem = require('./errorSystem.js');
 const applicationVariables = require('./applicationVariables.js');
 const TokenData = require('./TokenData.js');
 const buildURI = require('./utility.js').buildURI;
-const Errors = require('Errors.js');
+const Errors = require('./Errors.js');
 
 /**
  * Class for authorizing access to various google apis

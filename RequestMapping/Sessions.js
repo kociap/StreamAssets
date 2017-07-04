@@ -6,7 +6,7 @@ const Base64 = require('../Base64.js');
 const app = require('../Router.js');
 const User = require('../User.js');
 const ErrorSystem = require('../errorSystem.js');
-const Errors = require('Errors.js');
+const Errors = require('./Errors.js');
 
 // Improve ID generation
 

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const toString = require('utility.js').toString;
+const toString = require('./utility.js').toString;
 
 /**
  * Logs error log to given file

@@ -1,6 +1,6 @@
-const ErrorSystem = require('errorSystem.js');
+const ErrorSystem = require('./errorSystem.js');
 const fs = require('fs');
-const Errors = require('Errors.js');
+const Errors = require('./Errors.js');
 
 let usersFile = 'users.txt';
 

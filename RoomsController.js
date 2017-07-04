@@ -5,6 +5,7 @@ const ErrorSystem = require('./errorSystem.js');
 const applicationVariables = require('./applicationVariables.js');
 const YoutubeService = require('./YoutubeService.js');
 const requestPromise = require('request-promise');
+const SessionManager = require('./SessionManager.js');
 
 const REQUEST_TIMEOUT = 500;
 
@@ -28,9 +29,14 @@ function init(io) {
     _io.on('connection', (client) => {
         client.on('room-change', (roomName) => {
             // Widget connected
-
+            let sessionID = roomName;
             if(!(roomName in rooms)) {
                 rooms[roomName] = new SocketRoom(_io, roomName, REQUEST_TIMEOUT);
+                let requestAuthorizer = new GoogleAPIAuthorization();
+                requestAuthorizer.setRedirectURI(applicationVariables.domain + '/authenticatio-finalizing/' + sessionID);
+                requestAuthorizer.setTokenForScope(SessionManager.getSession(sessionID).getPrivateData('Token-Data'), applicationVariables.youtubeAPIScope);
+                let youtubeService = new YoutubeService(requestAuthorizer, SessionManager.getSession(sessionID));
+                rooms[roomName].setChannelService();
             }
             rooms[roomName].connectWidget(client);
             rooms[roomName].start();

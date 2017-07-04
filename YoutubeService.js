@@ -1,7 +1,7 @@
 const applicationVariables = require('./applicationVariables.js');
 const errorSystem = require("./errorSystem.js");
 const GoogleAPIAuthorization = require('./GoogleAPIAuthorization.js');
-const Errors = require('Errors.js');
+const Errors = require('./Errors.js');
 
 const yotubeScopes = {
     channels: 'https://www.googleapis.com/youtube/v3/channels',

@@ -33,7 +33,8 @@ app.get('/authentication-finalizing/:sessionID/', (req, res) => {
             res.redirect('/dashboard');
         });
     } else {
-        PendingRequestService.rejectPendingRequest(req.params.sessionID, 'Authentication error').catch((error) => {
+        PendingRequestService.rejectPendingRequest(req.params.sessionID, 'Authentication error')
+        .catch((error) => {
             ErrorSystem.log(applicationVariables.errorLogFile, 'Could not authenticate user', ErrorSystem.stacktrace(error));
             res.redirect('/?error=' + encodeURIComponent('Something went wrong, please try again in a few minutes'));
         });

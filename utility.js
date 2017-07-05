@@ -20,7 +20,12 @@ function buildURI(requestURI, params) {
     return requestURI + '?' + requestParams.join('&');
 }
 
+function reverseString(str) {
+    return str.split('').reverse().join('');
+}
+
 module.exports = {
     toString: toString,
-    buildURI: buildURI
-}
+    buildURI: buildURI,
+    reverseString: reverseString
+};

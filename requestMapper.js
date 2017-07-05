@@ -31,4 +31,8 @@ module.exports = (app) => {
         res.sendFile(__dirname + req.path, { headers: {"Content-Type": "text/javascript"} });
     });
 
+    app.get('/css/:fileName', (req, res) => {
+        res.sendFile(__dirname + '/CSS/' + req.params.fileName);
+    });
+
 }

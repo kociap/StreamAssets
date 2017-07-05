@@ -13,7 +13,6 @@ let requestPromise = (() => {
             request.onreadystatechange = () => {
                 if(request.readyState === request.DONE) { 
                     if(request.status >= 200 && request.status < 300) {
-                        console.log(request);
                         if(!requestData.hasOwnProperty('json') || !requestData['json']) {
                             resolve(request.response);
                         } else {

@@ -19,7 +19,11 @@ let requestPromise = (() => {
                             resolve(JSON.parse(request.response));
                         }
                     } else {
-                        reject({ status: request.status, response: request.response });
+                        if(!requestData.hasOwnProperty('json') || !requestData['json']) {
+                            reject({ status: request.status, response: request.response });
+                        } else {
+                            reject({ status: request.status, response: JSON.parse(request.response) });
+                        }
                     }
                 }
             };

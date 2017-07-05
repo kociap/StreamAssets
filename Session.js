@@ -21,7 +21,7 @@ module.exports = class Session {
     }
 
     getAllData() {
-        return this.data();
+        return this.data;
     }
 
     setPrivateData(key, value) {

@@ -10,19 +10,38 @@
     <script src='/client-library/request-promise.js'></script>
     <script>
         if(sessionStorage.getItem('Session-ID')) {
-            console.log('session');
-            // location.replace('http://localhost:3000/dashboard');
-        } else {
             requestPromise({
+                method: 'GET',
+                uri: '/sessions/' + sessionStorage.getItem('Session-ID'),
+                json: true
+            }).then((response) => {
+                // location.replace('http://localhost:3000/authenticate-user/' + sessionStorage.getItem('Session-ID'));
+            }).catch((error) => {
+                requestNewSession().then((response) => {
+                    console.log('new session', response);
+                    sessionStorage.setItem('Session-ID', response['Session-ID']);
+                    // location.replace('http://localhost:3000/authenticate-user/' + response['Session-ID']);
+                }).catch((error) => {
+                    let t = true;
+                    // location.replace('http://localhost:3000/?error=' + encodeURIComponent('Cound not create session'));
+                });
+            });
+        } else {
+            requestNewSession().then((response) => {
+                console.log('new session', response);
+                sessionStorage.setItem('Session-ID', response['Session-ID']);
+                // location.replace('http://localhost:3000/authenticate-user/' + response['Session-ID']);
+            }).catch((error) => {
+                let t = true;
+                // location.replace('http://localhost:3000/?error=' + encodeURIComponent('Cound not create session'));
+            });
+        }
+
+        function requestNewSession() {
+            return requestPromise({
                 method: 'GET',
                 uri: '/sessions/new-session',
                 json: true
-            }).then((response) => {
-                console.log(response);
-                sessionStorage.setItem('Session-ID', response['Session-ID']);
-                location.replace('http://localhost:3000/authenticate-user/' + response['Session-ID']);
-            }).catch((error) => {
-                // location.replace('http://localhost:3000/?error=' + encodeURIComponent('Cound not create session'));
             });
         }
     </script>

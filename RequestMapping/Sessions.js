@@ -1,17 +1,19 @@
-const applicationVariables = require('../ApplicationVariables.js');
+const ApplicationVariables = require('../ApplicationVariables.js');
 const DatabaseManager = require('../DatabaseManager.js');
 const SessionManager = require('../SessionManager.js');
 const YoutubeService = require('../YoutubeService.js');
+const GoogleAPIAuthorization = require('../GoogleAPIAuthorization.js');
 const Base64 = require('../Base64.js');
 const app = require('../Router.js').getRouter();
 const User = require('../User.js');
 const ErrorSystem = require('../errorSystem.js');
 const Errors = require('../Errors.js');
+const Utility = require('../utility.js');
 
 // Improve ID generation
 
 app.get('/sessions/new-session', (req, res) => {
-    let sessionID = Base64.encode(String(Date.now()));
+    let sessionID = Base64.encode(Utility.reverseString(String(Date.now())));
     SessionManager.createEmptySession(sessionID);
     res.status(201);
     res.send(JSON.stringify({ "Session-ID": sessionID }));
@@ -24,9 +26,11 @@ app.get('/sessions/:sessionID', (req, res) => {
         return;
     }
 
-    let authorization = Promise.resolve();
+    let authorization;
     if(!isAuthorizedSession(sessionID)) {
         authorization = authorizeSession(sessionID);
+    } else {
+        authorization = Promise.resolve();
     }
 
     authorization.then(() => {
@@ -38,6 +42,7 @@ app.get('/sessions/:sessionID', (req, res) => {
         res.set('Content-Type', 'application/json');
         res.status(500);
         res.send(JSON.stringify(error));
+        ErrorSystem.log(ApplicationVariables.errorLogFile, "Authorization error", ErrorSystem.stacktrace(error));
     });
 });
 
@@ -63,6 +68,7 @@ app.get('/sessions/:sessionID/:requestedKeys', (req, res) => {
         res.set('Content-Type', 'application/json');
         res.status(500);
         res.send(JSON.stringify(error));
+        ErrorSystem.log(ApplicationVariables.errorLogFile, "Authorization error", ErrorSystem.stacktrace(error));
     });
 });
 
@@ -80,13 +86,19 @@ app.post('/sessions/:sessionID', (req, res) => {
 });
 
 function isAuthorizedSession(sessionID) {
-    return SessionManager.getSession(sessionID).getPrivateData('Token-Data') !== null;
+    return SessionManager.getSession(sessionID).getPrivateData('Authentication-Code') === null && SessionManager.getSession(sessionID).getPrivateData('Token-Data') !== null;
 }
 
 function authorizeSession(sessionID) {
     return new Promise((resolve, reject) => {
-        GoogleAPIAuthorization.exchangeCode(SessionManager.getSession(sessionID).getPrivateData('Code'), applicationVariables.domain + '/authentication-finalizing/' + sessionID)
-        .then((tokenData) => {
+        Promise.resolve()
+        .then(() => {
+            if(SessionManager.getSession(sessionID).getPrivateData('Authentication-Code') === null) {
+                throw new Errors.AuthorizationError("Missing authentication code");
+            }
+
+            return GoogleAPIAuthorization.exchangeCode(SessionManager.getSession(sessionID).getPrivateData('Authentication-Code'), ApplicationVariables.domain + '/authentication-finalizing/' + sessionID)
+        }).then((tokenData) => {
             SessionManager.getSession(sessionID).deletePrivateData('Authentication-Code');
             SessionManager.getSession(sessionID).setPrivateData('Token-Data', tokenData);
             return YoutubeService.getChannelIDWithToken(tokenData.accessToken);
@@ -95,18 +107,17 @@ function authorizeSession(sessionID) {
             return DatabaseManager.addUser(new User(SessionManager.getSession(sessionID).getPrivateData('Token-Data')));
         }).catch((error) => {
             if(error instanceof Errors.AuthorizationError) {
-                SessionManager.getSession(sessionID).deletePrivateData('Authentication-Code');
-                reject({ error: 'User authorization failed' });
+                reject({ error: 'User authorization failed', message: error.message });
             } else if(error instanceof Errors.RequestError) {
-                SessionManager.getSession(sessionID).deletePrivateData('TokenData');
-                reject({ error: "Could not request user's data" });
+                reject({ error: "Could not request user's data", message: error.message });
             } else if(error instanceof Errors.DatabaseError) {
-                SessionManager.getSession(sessionID).deletePrivateData('TokenData');
-                SessionManager.getSession(sessionID).deleteData('Channel-ID');
-                reject({ error: "Database query failed" });
+                reject({ error: "Database query failed", message: error.message });
+            } else {
+                reject({ error: "Unknown error", message: error.message });
             }
-        });
-
-        resolve();
+            SessionManager.endSession(sessionID);
+        }).then(() => {
+            resolve();
+        })
     });
 }

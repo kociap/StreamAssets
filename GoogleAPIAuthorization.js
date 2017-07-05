@@ -123,7 +123,7 @@ module.exports = class GoogleAPIAuthorization {
                 grant_type: 'authorization_code',
                 client_id: applicationVariables.clientID,
                 client_secret: applicationVariables.clientSecret,
-                redirect_uri: this.redirectURI
+                redirect_uri: redirectURI
             }),
             json: true 
         }).catch((error) => {

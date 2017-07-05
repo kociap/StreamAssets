@@ -55,7 +55,7 @@ function resolvePendingPromise(ID, data) {
         throw new Error("Promise with given ID doesn't exist");
     }
 
-    let promise = pendingPromises[ID];
+    let promise = pendingPromises[ID].promise;
     pendingPromises[ID].resolve(data);
     delete pendingPromises[ID];
     return promise;
@@ -73,7 +73,7 @@ function rejectPendingPromise(ID, reason) {
         throw new Error("Promise with given ID doesn't exist");
     }
 
-    let promise = pendingPromises[ID];
+    let promise = pendingPromises[ID].promise;
     pendingPromises[ID].reject(reason);
     delete pendingPromises[ID];
     return promise;

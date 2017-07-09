@@ -10,7 +10,7 @@ class Cookies {
                 cookieString += ';expires=' + maxAge.toUTCString();
             }
         }
-        
+
         if(domain) {
             cookieString += ';domain=' + domain;
         }
@@ -29,11 +29,11 @@ class Cookies {
     }
 
     static get(key) {
-        return decodeURIComponent(document.cookie.replace(new RegExp("(?:" + encodeURIComponent(key) + "=)([^;]+)"), "$1"));
+        return decodeURIComponent(document.cookie.replace(new RegExp("(?:" + encodeURIComponent(key) + "=)([^;]+).*"), "$1")) || null;
     }
 
     static hasKey(key) {
-        return (new RegExp('(' + encodeURIComponent(key) + ')' + "{1}\=")).test(document.cookies);
+        return (new RegExp('(' + encodeURIComponent(key) + ')' + "{1}\=")).test(document.cookie);
     }
 
     static keys() {

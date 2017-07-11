@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='initial-scale=1, width=device-width'>
+</head>
+
+<body>
+    <script src='/client-library/request-promise.js'></script>
+    <script>
+        if(sessionStorage.getItem('Session-ID')) {
+            requestPromise({
+                method: 'GET',
+                uri: '/sessions/' + sessionStorage.getItem('Session-ID'),
+                json: true
+            }).then((response) => {
+                // location.replace('http://localhost:3000/authenticate-user/' + sessionStorage.getItem('Session-ID'));
+            }).catch((error) => {
+                requestNewSession().then((response) => {
+                    console.log('new session', response);
+                    sessionStorage.setItem('Session-ID', response['Session-ID']);
+                    // location.replace('http://localhost:3000/authenticate-user/' + response['Session-ID']);
+                }).catch((error) => {
+                    let t = true;
+                    // location.replace('http://localhost:3000/?error=' + encodeURIComponent('Cound not create session'));
+                });
+            });
+        } else {
+            requestNewSession().then((response) => {
+                console.log('new session', response);
+                sessionStorage.setItem('Session-ID', response['Session-ID']);
+                // location.replace('http://localhost:3000/authenticate-user/' + response['Session-ID']);
+            }).catch((error) => {
+                let t = true;
+                // location.replace('http://localhost:3000/?error=' + encodeURIComponent('Cound not create session'));
+            });
+        }
+
+        function requestNewSession() {
+            return requestPromise({
+                method: 'GET',
+                uri: '/sessions/new-session',
+                json: true
+            });
+        }
+    </script>
+</body>
+
+</html>

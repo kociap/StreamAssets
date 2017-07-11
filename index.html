@@ -3,16 +3,37 @@
     <head>
         <meta charset='utf-8'>
         <meta name='viewport' content='initial-scale=1, width=device-width'>
+        <link rel='stylesheet' href='http://localhost:3000/CSS/reset.css'>
+        <style>
+            a {
+                color: #FFFFFF;
+                text-decoration: none;
+            }
+
+            .error-alert {
+                background: red;
+                color: #FFFFFF;
+                padding: 6px 10px;
+            }
+
+            .error-alert__content {
+                text-align: center;
+            }
+
+            .error-alert--hidden {
+                display: none;
+            }
+        </style>
     </head>
-    <body style='background-color: rgb(40, 40, 40);'>
-        <script src='socket.io/socket.io.js'></script>
+    <body style='background-color: rgb(40, 40, 40); color: #FFFFFF;'>
+        <div class='error-alert error-alert--hidden' id='error-alert'><div class='error-alert__content' id='error-alert__content'></div></div>
+        <a href='/authentication-init'>Authentication init</a>
         <script>
-            let socket = new io();
-            socket.on('youtube-subscribers-update', (response) => {
-                console.log(response);
-            }).on('youtube-statistics-update', (response) => {
-                console.log(response);
-            });
+            let url = new URL(decodeURI(location.href));
+            if(url.searchParams.has('error')) {
+                document.getElementById('error-alert__content').innerHTML = url.searchParams.get('error');
+                document.getElementById('error-alert').classList.remove('error-alert--hidden');
+            }
         </script>
     </body>
 </html>

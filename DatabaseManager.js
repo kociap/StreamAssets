@@ -14,7 +14,7 @@ new Promise((resolve, reject) => {
 }).then(() => {
     fs.readFile(__dirname + '/' + usersFile, { encoding: 'utf-8' }, (error, data) => {
         if(error) {
-            ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'File read failed', error.stack);
+            ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'File reading failed', error.stack);
         } else {
             try {
                 users = JSON.parse(data);

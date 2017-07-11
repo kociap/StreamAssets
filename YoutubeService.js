@@ -1,4 +1,4 @@
-const applicationVariables = require('./applicationVariables.js');
+const ApplicationVariables = require('./ApplicationVariables.js');
 const errorSystem = require("./errorSystem.js");
 const GoogleAPIAuthorization = require('./GoogleAPIAuthorization.js');
 const Errors = require('./Errors.js');
@@ -28,11 +28,11 @@ module.exports = class YoutubeService {
 
     authorizeNewAccess() {
         return new Promise((resolve, reject) => {
-            this.requestAuthorizer.authorizeAccesss(applicationVariables.youtubeAPIScope)
+            this.requestAuthorizer.authorizeAccesss(ApplicationVariables.YOUTUBE_API_SCOPE)
             .then(() => {
                 resolve();
             }).catch((error) => {
-                errorSystem.log(applicationVariables.errorLogFile, "Could not authorize access", errorSystem.stacktrace(error));
+                errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Could not authorize access", errorSystem.stacktrace(error));
                 reject(error);
             })
         });
@@ -46,10 +46,10 @@ module.exports = class YoutubeService {
     static getChannelIDWithToken(accessToken) {
         return GoogleAPIAuthorization.makeRequest(accessToken, {
             method: 'GET',
-            api: applicationVariables.youtubeAPIScope, 
+            api: ApplicationVariables.YOUTUBE_API_SCOPE, 
             scope: yotubeScopes.channels, 
             params: { 
-                key: applicationVariables.youtubeAPIKey, 
+                key: ApplicationVariables.YOUTUBE_API_KEY, 
                 part: 'id', 
                 mine: 'true' 
             }
@@ -67,10 +67,10 @@ module.exports = class YoutubeService {
         return new Promise((resolve, reject) => {
             this.requestAuthorizer.makeAuthorizedRequest({
                 method: 'GET',
-                api: applicationVariables.youtubeAPIScope, 
+                api: ApplicationVariables.YOUTUBE_API_SCOPE, 
                 scope: yotubeScopes.channels, 
                 params: { 
-                    key: applicationVariables.youtubeAPIKey, 
+                    key: ApplicationVariables.YOUTUBE_API_KEY, 
                     part: 'id', 
                     mine: 'true' 
                 }
@@ -87,17 +87,17 @@ module.exports = class YoutubeService {
      */
     getChannelStatistics() {
         if(!this.channelID) {
-            errorSystem.log(applicationVariables.errorLogFile, "Channel ID is not set", errorSystem.stacktrace("Channel ID not set"));
+            errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Channel ID is not set", errorSystem.stacktrace("Channel ID not set"));
             return Promise.reject("Channel ID not set");
         }
 
         return new Promise((resolve, reject) => {
             this.requestAuthorizer.makeAuthorizedRequest({
                 method: 'GET',
-                api: applicationVariables.youtubeAPIScope, 
+                api: ApplicationVariables.YOUTUBE_API_SCOPE, 
                 scope: yotubeScopes.channels,  
                 params: { 
-                    key: applicationVariables.youtubeAPIKey, 
+                    key: ApplicationVariables.YOUTUBE_API_KEY, 
                     part: "statistics", 
                     id: this.channelID 
                 }
@@ -114,17 +114,17 @@ module.exports = class YoutubeService {
      */
     getRecentSubscribers() {
         if(!this.channelID) {
-            errorSystem.log(applicationVariables.errorLogFile, "Channel ID is not set", errorSystem.stacktrace("Channel ID not set"));
+            errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Channel ID is not set", errorSystem.stacktrace("Channel ID not set"));
             return Promise.reject("Channel ID not set");
         }
 
         return new Promise((resolve, reject) => {
             this.requestAuthorizer.makeAuthorizedRequest({
                 method: 'GET',
-                api: applicationVariables.youtubeAPIScope, 
+                api: ApplicationVariables.YOUTUBE_API_SCOPE, 
                 scope: yotubeScopes.subscriptions, 
                 params: { 
-                    key: applicationVariables.youtubeAPIKey, 
+                    key: ApplicationVariables.YOUTUBE_API_KEY, 
                     part: 'subscriberSnippet', 
                     myRecentSubscribers: 'true' 
                 }

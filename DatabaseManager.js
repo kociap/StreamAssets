@@ -1,22 +1,28 @@
 const ErrorSystem = require('./errorSystem.js');
 const fs = require('fs');
 const Errors = require('./Errors.js');
-const ApplicationVariables = require('./applicationVariables.js');
+const ApplicationVariables = require('./ApplicationVariables.js');
 
 let usersFile = 'users.txt';
 
 let users = [];
 
-fs.readFile(__dirname + '/' + usersFile, { encoding: 'utf-8' }, (error, data) => {
-    if(error) {
-        ErrorSystem.log(ApplicationVariables.errorLogFile, 'File read failed', ErrorSystem.stacktrace(error));
-    } else {
-        try {
-            users = JSON.parse(data);
-        } catch(e) {
-            ErrorSystem.log(ApplicationVariables.errorLogFile, 'Syntax error in read data', e.stacktrace);
+new Promise((resolve, reject) => {
+    fs.writeFile(__dirname + '/' + usersFile, '', { flag: 'wx' }, (error) => {
+        resolve();
+    });
+}).then(() => {
+    fs.readFile(__dirname + '/' + usersFile, { encoding: 'utf-8' }, (error, data) => {
+        if(error) {
+            ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'File read failed', error.stack);
+        } else {
+            try {
+                users = JSON.parse(data);
+            } catch(e) {
+                ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'Data reading failed due to syntax error', ErrorSystem.stacktrace(e));
+            }
         }
-    }
+    });
 });
 
 function addUser(user) {

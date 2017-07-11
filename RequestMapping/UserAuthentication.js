@@ -1,4 +1,4 @@
-const applicationVariables = require('../applicationVariables.js');
+const ApplicationVariables = require('../ApplicationVariables.js');
 const PendingRequestService = require('../PendingRequestService.js');
 const RoomsController = require('../RoomsController.js');
 const ErrorSystem = require('../errorSystem.js');
@@ -15,9 +15,9 @@ app.get('/authenticate-user/:sessionID', (req, res) => {
     let promise = PendingRequestService.createPendingRequest(sessionID);
 
     res.redirect(buildURI('https://accounts.google.com/o/oauth2/auth', {
-        client_id: applicationVariables.clientID,
-        scope: applicationVariables.youtubeAPIScope,
-        redirect_uri: applicationVariables.domain + '/authentication-finalizing/' + sessionID,
+        client_id: ApplicationVariables.CLIENT_ID,
+        scope: ApplicationVariables.YOUTUBE_API_SCOPE,
+        redirect_uri: ApplicationVariables.DOMAIN + '/authentication-finalizing/' + sessionID,
         response_type: 'code',
         access_type: 'offline'
     }));
@@ -35,7 +35,7 @@ app.get('/authentication-finalizing/:sessionID/', (req, res) => {
     } else {
         PendingRequestService.rejectPendingRequest(req.params.sessionID, 'Authentication error')
         .catch((error) => {
-            ErrorSystem.log(applicationVariables.errorLogFile, 'Could not authenticate user', ErrorSystem.stacktrace(error));
+            ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'Could not authenticate user', ErrorSystem.stacktrace(error));
             res.redirect('/?error=' + encodeURIComponent('Something went wrong, please try again in a few minutes'));
         });
     }

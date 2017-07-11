@@ -18,19 +18,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 require('./Router.js').setRouter(app);
 
 // Request mapping
-const requestMapper = require('./requestMapper.js')(app, io);
+require('./RequestMapping/RequestMapper.js');
 require('./RequestMapping/Sessions.js');
 require('./RequestMapping/UserAuthentication.js');
+require('./RequestMapping/Login.js');
 
-const applicationVariables = require('./applicationVariables.js');
+const ApplicationVariables = require('./ApplicationVariables.js');
 const RoomsController = require('./RoomsController.js');
 
 // Data refresh time in milliseconds
 const REFRESH_TIMEOUT = 500;
 const ACCOUNT_ID = 'UCtlzktCIv86iJ3fFWlkvVog';
 
-http.listen(Number(applicationVariables.serverPort), () => {
-    console.log(`Server launched at ${applicationVariables.serverPort}`);
+http.listen(Number(ApplicationVariables.SERVER_PORT), () => {
+    console.log(`Server launched at ${ApplicationVariables.SERVER_PORT}`);
 });
 
 RoomsController.init(io);

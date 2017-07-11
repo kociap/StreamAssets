@@ -2,7 +2,7 @@ const opn = require('opn');
 const requestPromise = require('request-promise');
 const fs = require('fs');
 const errorSystem = require('./errorSystem.js');
-const applicationVariables = require('./applicationVariables.js');
+const ApplicationVariables = require('./ApplicationVariables.js');
 const TokenData = require('./TokenData.js');
 const buildURI = require('./utility.js').buildURI;
 const Errors = require('./Errors.js');
@@ -86,12 +86,12 @@ module.exports = class GoogleAPIAuthorization {
             let stacktrace = '';
             if (!scope) {
                 stacktrace += errorSystem.stacktrace("Missing parameter scope");
-                errorSystem.log(applicationVariables.errorLogFile, "Failed to prepare request uri", errorSystem.stacktrace("Missing parameter scope"));
+                errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Failed to prepare request uri", errorSystem.stacktrace("Missing parameter scope"));
             }
 
             if (!this.redirectURI) {
                 stacktrace += errorSystem.stacktrace("Missing parameter redirect_uri");
-                errorSystem.log(applicationVariables.errorLogFile, "Failed to prepare request uri", errorSystem.stacktrace("Missing parameter redirect_uri"));
+                errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Failed to prepare request uri", errorSystem.stacktrace("Missing parameter redirect_uri"));
             }
 
             return Promise.reject(stacktrace);
@@ -100,7 +100,7 @@ module.exports = class GoogleAPIAuthorization {
         return new Promise((resolve, reject) => {
             // Open authentication page
             // buildURI('https://accounts.google.com/o/oauth2/auth', {
-            //     client_id: applicationVariables.clientID,
+            //     client_id: ApplicationVariables.CLIENT_ID,
             //     scope: scope,
             //     redirect_uri: this.redirectURI,
             //     response_type: 'code',
@@ -121,8 +121,8 @@ module.exports = class GoogleAPIAuthorization {
             uri: buildURI('https://www.googleapis.com/oauth2/v4/token', {
                 code: code,
                 grant_type: 'authorization_code',
-                client_id: applicationVariables.clientID,
-                client_secret: applicationVariables.clientSecret,
+                client_id: ApplicationVariables.CLIENT_ID,
+                client_secret: ApplicationVariables.CLIENT_SECRET,
                 redirect_uri: redirectURI
             }),
             json: true 
@@ -143,12 +143,12 @@ module.exports = class GoogleAPIAuthorization {
             let stacktrace = '';
             if (!code) {
                 stacktrace += errorSystem.stacktrace("Missing parameter code");
-                errorSystem.log(applicationVariables.errorLogFile, "Failed to prepare request uri", errorSystem.stacktrace("Missing parameter code"));
+                errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Failed to prepare request uri", errorSystem.stacktrace("Missing parameter code"));
             }
 
             if (!this.redirectURI) {
                 stacktrace += errorSystem.stacktrace("Missing parameter redirect_uri");
-                errorSystem.log(applicationVariables.errorLogFile, "Failed to prepare request uri", errorSystem.stacktrace("Missing parameter redirect_uri"));
+                errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Failed to prepare request uri", errorSystem.stacktrace("Missing parameter redirect_uri"));
             }
 
             return Promise.reject(errorMessage);
@@ -159,8 +159,8 @@ module.exports = class GoogleAPIAuthorization {
             uri: buildURI('https://www.googleapis.com/oauth2/v4/token', {
                 code: code,
                 grant_type: 'authorization_code',
-                client_id: applicationVariables.clientID,
-                client_secret: applicationVariables.clientSecret,
+                client_id: ApplicationVariables.CLIENT_ID,
+                client_secret: ApplicationVariables.CLIENT_SECRET,
                 redirect_uri: this.redirectURI
             }),
             json: true 
@@ -185,8 +185,8 @@ module.exports = class GoogleAPIAuthorization {
             requestPromise({
                 method: 'POST',
                 uri: buildURI('https://www.googleapis.com/oauth2/v4/token', {
-                    client_id: applicationVariables.clientID,
-                    client_secret: applicationVariables.clientSecret,
+                    client_id: ApplicationVariables.CLIENT_ID,
+                    client_secret: ApplicationVariables.CLIENT_SECRET,
                     refresh_token: this.tokens[scope].refreshToken,
                     grant_type: 'refresh_token'
                 }), 
@@ -195,7 +195,7 @@ module.exports = class GoogleAPIAuthorization {
                 this.updateTokenInformations(scope, authorizationData);
                 resolve(authorizationData.access_token);
             }).catch((error) => {
-                errorSystem.log(applicationVariables.errorLogFile, 'Could not refresh access token', errorSystem.stacktrace(error));
+                errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'Could not refresh access token', errorSystem.stacktrace(error));
                 reject(error);
             });
         });
@@ -226,11 +226,11 @@ module.exports = class GoogleAPIAuthorization {
                 }).catch((error) => {
                     // Inform the page about an error
                     // this.socketio.emit('authorization-error', error);
-                    errorSystem.log(applicationVariables.errorLogFile, "Failed to exchange tokens", errorSystem.stacktrace(error));
+                    errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Failed to exchange tokens", errorSystem.stacktrace(error));
                     reject(error);
                 });
             }).catch((error) => {
-                errorSystem.log(applicationVariables.errorLogFile, "Failed to obtain authentication token", errorSystem.stacktrace(error));
+                errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Failed to obtain authentication token", errorSystem.stacktrace(error));
                 reject(error);
             })
         });
@@ -284,7 +284,7 @@ module.exports = class GoogleAPIAuthorization {
                     resolve(response);
                 });
             }).catch((error) => {
-                errorSystem.log(applicationVariables.errorLogFile, "Could not make an authorized request", errorSystem.stacktrace(error));
+                errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Could not make an authorized request", errorSystem.stacktrace(error));
                 reject(error);
             });
         });
@@ -295,7 +295,7 @@ module.exports = class GoogleAPIAuthorization {
      * @param {{method: string; api: string; scope: string; params: object}} requestData
      * @returns {Promise<object>}
      */
-    makeRequest(accessToken, requestData) {
+    static makeRequest(accessToken, requestData) {
         return new Promise((resolve, reject) => {
             requestData.params.access_token = accessToken;
             return requestPromise({
@@ -305,7 +305,7 @@ module.exports = class GoogleAPIAuthorization {
             }).then((response) => {
                 resolve(response);
             }).catch((error) => {
-                errorSystem.log(applicationVariables.errorLogFile, "Request failed", errorSystem.stacktrace(error));
+                errorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "Request failed", errorSystem.stacktrace(error));
                 reject(error);
             });
         });

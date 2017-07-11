@@ -1,10 +1,12 @@
 module.exports = {
-    errorLogFile: 'error_log.txt',
-    serverPort: '3000',
-    domain: 'http://localhost:3000',
+    ERROR_LOG_FILE: 'error_log.txt',
+    SERVER_PORT: '3000',
+    DOMAIN: 'http://localhost:3000',
+    ROOT_DIR: __dirname,
     
-    youtubeAPIScope: 'https://www.googleapis.com/auth/youtube',
-    youtubeAPIKey: 'AIzaSyAsIVah4N_GyWEW1j6j1e9uNWgTY9PrUa0',
-    clientID: '1095826790210-nioob90omr0ibu8fu249jkgqjktqgh7u.apps.googleusercontent.com',
-    clientSecret: 'fFQdWdHZ6rxxqeFG0yXlVHBA',
+    YOUTUBE_OAUTH_REDIRECT_URI: 'http://localhost:3000/youtube/auth',
+    YOUTUBE_API_SCOPE: 'https://www.googleapis.com/auth/youtube',
+    YOUTUBE_API_KEY: 'AIzaSyAsIVah4N_GyWEW1j6j1e9uNWgTY9PrUa0',
+    CLIENT_ID: '1095826790210-nioob90omr0ibu8fu249jkgqjktqgh7u.apps.googleusercontent.com',
+    CLIENT_SECRET: 'fFQdWdHZ6rxxqeFG0yXlVHBA',
 };

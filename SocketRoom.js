@@ -48,7 +48,7 @@ module.exports = class SocketRoom {
             // Send obtained data to client
             this.io.to(this.roomName).emit('channel-statistics-update', statistics);
         }).catch((error) => {
-            ErrorSystem.log(applicationVariables.errorLogFile, 'Could not fetch channel statistics', ErrorSystem.stacktrace(error));
+            ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'Could not fetch channel statistics', ErrorSystem.stacktrace(error));
         });
 
         let recentSubscribers = this.channelService.getRecentSubscribers()
@@ -56,7 +56,7 @@ module.exports = class SocketRoom {
             // Send obtained data to client
             this.io.to(this.roomName).emit('channel-subscribers-update', subscribers);
         }).catch((error) => {
-            ErrorSystem.log(applicationVariables.errorLogFile, 'Could not fetch channel subscribers', ErrorSystem.stacktrace(error));
+            ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'Could not fetch channel subscribers', ErrorSystem.stacktrace(error));
         });
 
         // Update after timeout once all requests are done

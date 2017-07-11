@@ -2,7 +2,7 @@
 const GoogleAPIAuthorization = require("./GoogleAPIAuthorization.js");
 const TokenData = require('./TokenData.js');
 const ErrorSystem = require('./errorSystem.js');
-const applicationVariables = require('./applicationVariables.js');
+const ApplicationVariables = require('./ApplicationVariables.js');
 const YoutubeService = require('./YoutubeService.js');
 const requestPromise = require('request-promise');
 const SessionManager = require('./SessionManager.js');
@@ -33,8 +33,8 @@ function init(io) {
             if(!(roomName in rooms)) {
                 rooms[roomName] = new SocketRoom(_io, roomName, REQUEST_TIMEOUT);
                 let requestAuthorizer = new GoogleAPIAuthorization();
-                requestAuthorizer.setRedirectURI(applicationVariables.domain + '/authenticatio-finalizing/' + sessionID);
-                requestAuthorizer.setTokenForScope(SessionManager.getSession(sessionID).getPrivateData('Token-Data'), applicationVariables.youtubeAPIScope);
+                requestAuthorizer.setRedirectURI(ApplicationVariables.DOMAIN + '/authenticatio-finalizing/' + sessionID);
+                requestAuthorizer.setTokenForScope(SessionManager.getSession(sessionID).getPrivateData('Token-Data'), ApplicationVariables.YOUTUBE_API_SCOPE);
                 let youtubeService = new YoutubeService(requestAuthorizer, SessionManager.getSession(sessionID));
                 rooms[roomName].setChannelService();
             }

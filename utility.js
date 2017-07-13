@@ -8,6 +8,8 @@ function toString(obj) {
 
 /**
  * Builds uri with given base request uri and parameters
+ * Automatically encodes each key and value so that the 
+ *   built uri adheres to standard
  * @param {string} requestURI 
  * @param {object} params 
  * @returns {string}
@@ -15,7 +17,7 @@ function toString(obj) {
 function buildURI(requestURI, params) {
     let requestParams = [];
     for (let key of Object.keys(params)) {
-        requestParams.push(`${key}=${params[key]}`);
+        requestParams.push(encodeURIComponent(String(key)) + '=' + encodeURIComponent(String(params[key])));
     }
     return requestURI + '?' + requestParams.join('&');
 }

@@ -38,6 +38,10 @@ module.exports = class YoutubeService {
         });
     }
 
+    static authorizeAccessCode(code) {
+        return GoogleAPIAuthorization.exchangeCode(code, ApplicationVariables.YOUTUBE_OAUTH_REDIRECT_URI);
+    }
+
     /**
      * Gets channel id using access token
      * @param {string} accessToken 

@@ -36,7 +36,36 @@ function addUser(user) {
             users.push(user);
             resolve();
         });
-    })
+    });
+}
+
+function writeToDatabase() {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(usersFile, JSON.stringify(users), (error) => {
+            if(error) {
+                reject(new Errors.DatabaseError(error));
+                return;
+            }
+
+            resolve();
+        });
+    });
+}
+
+function addOrUpdateUser(user) {
+    let foundUser = getUserByChannelID(user);
+    if(foundUser) {
+        foundUser.copyAssign(user); // Will fail if e.g. widgetKey is be null
+        return writeToDatabase();
+    } else {
+        return addUser(user);
+    }
+}
+
+function findUser(user) {
+    return users.find((userToCompareAgainst) => {
+        return user.equals(userToCompareAgainst);
+    }) || null;
 }
 
 function getUserByChannelID(channelID) {
@@ -56,6 +85,7 @@ function getUserByWidgetKey(widgetKey) {
 
 module.exports = {
     addUser: addUser,
+    addOrUpdateUser: addOrUpdateUser,
     getUserByChannelID: getUserByChannelID,
     getUserByWidgetKey: getUserByWidgetKey
 }

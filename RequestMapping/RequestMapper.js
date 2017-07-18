@@ -1,16 +1,17 @@
 const app = require('../Router.js').getRouter();
 const ApplicationVariables = require('../ApplicationVariables.js');
+const Cookies = require('./Cookies.js');
 
 app.get('/', (req, res) => {
     res.sendFile(ApplicationVariables.ROOT_DIR + '/index.html');
 });
 
 app.get('/dashboard', (req, res) => {
-    res.sendFile(ApplicationVariables.ROOT_DIR + '/dashboard.html');
-});
-
-app.get('/authentication-init', (req, res) => {
-    res.sendFile(ApplicationVariables.ROOT_DIR + '/authentication-init.html');
+    if(Cookies.hasAccountCookie(req)) {
+        res.sendFile(ApplicationVariables.ROOT_DIR + '/dashboard.html');
+    } else {
+        res.redirect('/');
+    }
 });
 
 app.get('/client-library/:fileName', (req, res) => {

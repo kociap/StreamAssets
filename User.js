@@ -1,13 +1,19 @@
+const Errors = require('./Errors.js');
+
 module.exports = class User {
     /**
-     * @param {string} channelID 
-     * @param {string|null} widgetKey 
-     * @param {TokenData|null} tokenData 
+     * @param {string} channelID
+     * @param {string|null} [widgetKey]
+     * @param {TokenData|null} [tokenData]
      */
-    constructor(channelID, widgetKey, tokenData) {
-        this.channelID = channelID || null;
-        this.widgetKey = widgetKey || null;
+    constructor(channelID, tokenData, widgetKey) {
+        if(!channelID) {
+            throw new Errors.RequiredArgumentNotSuppliedError('channelID');
+        }
+        
+        this.channelID = channelID;
         this.tokenData = tokenData || null;
+        this.widgetKey = widgetKey || null;
     }
 
     setChannelID(channelID) {
@@ -32,5 +38,15 @@ module.exports = class User {
 
     getTokenData() {
         return this.tokenData;
+    }
+
+    copyAssign(user) {
+        this.channelID = user.channelID;
+        this.widgetKey = user.widgetKey;
+        this.tokenData = user.tokenData;
+    }
+
+    equals(user) {
+        return this.channelID === user.channelID && this.widgetKey === user.widgetKey && this.tokenData === user.tokenData;
     }
 }

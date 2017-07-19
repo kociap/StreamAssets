@@ -19,7 +19,7 @@ let log = (fileName, description, message) => {
 
 /**
  * Generates stack trace
- * @param {string} message (optional) message to better describe the problem
+ * @param {string} [message] message to better describe the problem
  * @returns {string}
  */
 let stacktrace = (message) => {

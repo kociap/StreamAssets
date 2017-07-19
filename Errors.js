@@ -1,11 +1,3 @@
-module.exports = {
-    DatabaseError: DatabaseError,
-    NullFieldError: NullFieldError,
-    RequestError: RequestError,
-    AuthorizationError: AuthorizationError,
-    RequiredArgumentNotSuppliedError: RequiredArgumentNotSuppliedError
-};
-
 class DatabaseError extends Error {
     constructor(message) {
         super(message);
@@ -40,3 +32,11 @@ class RequiredArgumentNotSuppliedError extends Error {
         this.errorType = 'RequiredArgumentNotSupplied';
     }
 }
+
+module.exports = {
+    DatabaseError: DatabaseError,
+    NullFieldError: NullFieldError,
+    RequestError: RequestError,
+    AuthorizationError: AuthorizationError,
+    RequiredArgumentNotSuppliedError: RequiredArgumentNotSuppliedError
+};

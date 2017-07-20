@@ -30,7 +30,7 @@ function getAccountCookie() {
 
 function setResponseHeaderToSetCookie(res, cookieValue) {
     res.cookie(ApplicationVariables.USER_ACCOUNT_COOKIE_NAME, cookieValue, {
-        maxAge: 1000 * 3600 * 24 * 7,
+        maxAge: ApplicationVariables.USER_ACCOUNT_COOKIE_MAX_AGE,
         path: '/',
         httpOnly: true
     });

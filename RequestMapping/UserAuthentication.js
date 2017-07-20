@@ -6,16 +6,7 @@ const Cookies = require('./Cookies.js');
 const YoutubeService = require('../YoutubeService.js');
 const DatabaseManager = require('../DatabaseManager.js');
 const User = require('../User.js');
-
-function authorizeAndSave(code, accountID) {
-    YoutubeService.authorizeAccessCode(code)
-    .then((tokenData) => {
-        YoutubeService.getChannelIDWithToken(tokenData.accessToken)
-        .then((channelID) => {
-            DatabaseManager.addOrUpdateUser(new User(channelID, tokenData));
-        });
-    });
-}
+const RandomHashService = require('../RandomHashService.js');
 
 app.get('/youtube/login', (req, res) => {
     let accountID = req.cookies[ApplicationVariables.USER_ACCOUNT_COOKIE_NAME];
@@ -37,16 +28,36 @@ app.get('/youtube/auth', (req, res) => {
     let accountID = req.cookies[ApplicationVariables.USER_ACCOUNT_COOKIE_NAME];
     let code = req.query['code'];
     if(!accountID) {
-        res.redirect('/?notice=' + encodeURIComponent("Whoa! Something's missing"));
+        res.redirect('/?notice=' + encodeURIComponent("You have to log in first!"));
         return;
     }
 
-    if(code) {
-        authorizeAndSave(code, accountID);
+    if(!code) {
+        removeCookieAndRedirect();
+    }
+
+    authorizeAndGenerateUserDataAndSave(code, accountID).then(() => {
         res.redirect('/dashboard');
-    } else {
-        ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'Could not authenticate user', ErrorSystem.stacktrace(req.query['error']));
+    }).catch((error) => {
+        ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "", error.stack);
+        removeCookieAndRedirect();
+    });
+
+    function removeCookieAndRedirect() {
         Cookies.setResponseHeaderToRemoveCookie(res, ApplicationVariables.USER_ACCOUNT_COOKIE_NAME);
-        res.redirect('/?error=' + encodeURIComponent('Something went wrong, please try again in a few minutes'));
+        res.redirect('/?error=' + encodeURIComponent('Something bad happened, please try again in a few minutes'));
     }
 });
+
+function authorizeAndGenerateUserDataAndSave(code, accountID) {
+    return YoutubeService.authorizeAccessCode(code)
+           .then((tokenData) => {
+                return YoutubeService.getChannelIDWithToken(tokenData.accessToken)
+                       .then((channelID) => {
+                            return DatabaseManager.setUserTokenData(channelID, tokenData)
+                                   .catch((error) => {
+                                        return DatabaseManager.addUser(new User(channelID, tokenData, RandomHashService.generateWidgetKey()));
+                                   });
+                       });
+           });
+}

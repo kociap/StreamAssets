@@ -12,6 +12,13 @@ class NullFieldError extends DatabaseError {
     }
 }
 
+class EntityDoesNotExist extends DatabaseError {
+    constructor() {
+        super('Requested entity doesn\'t exist');
+        this.errorType = 'EntityDoesNotExist';
+    }
+}
+
 class RequestError extends Error {
     constructor(message) {
         super(message);
@@ -38,5 +45,6 @@ module.exports = {
     NullFieldError: NullFieldError,
     RequestError: RequestError,
     AuthorizationError: AuthorizationError,
-    RequiredArgumentNotSuppliedError: RequiredArgumentNotSuppliedError
+    RequiredArgumentNotSuppliedError: RequiredArgumentNotSuppliedError,
+    EntityDoesNotExist: EntityDoesNotExist
 };

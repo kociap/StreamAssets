@@ -8,6 +8,7 @@ app.get('/', (req, res) => {
 
 app.get('/dashboard', (req, res) => {
     if(Cookies.hasAccountCookie(req)) {
+        Cookies.setResponseHeaderToSetAccountCookie(res, Cookies.getAccountCookie(req));
         res.sendFile(ApplicationVariables.ROOT_DIR + '/dashboard.html');
     } else {
         res.redirect('/');

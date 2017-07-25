@@ -7,28 +7,15 @@ const Utility = require('../Utility.js');
 module.exports = {
     hasAccountCookie: hasAccountCookie,
     getAccountCookie: getAccountCookie,
-    setResponseHeaderToSetCookie: setResponseHeaderToSetCookie,
-    getNewAccountToken: getNewAccountToken,
+    setResponseHeaderToSetAccountCookie: setResponseHeaderToSetAccountCookie,
     setResponseHeaderToRemoveCookie: setResponseHeaderToRemoveCookie
 };
 
-function getNewAccountToken() {
-    return Base64.encode(String(Math.random() * Math.pow(10, Math.random() * 5)) + Utility.reverseString(String(Date.now())) + String(Math.random() * Math.pow(10, Math.random() * 5)));
+function getAccountCookie(req) {
+    return req.cookies[ApplicationVariables.USER_ACCOUNT_COOKIE_NAME];
 }
 
-function getAccountCookie() {
-    return new Promise((resolve, reject) => {
-        requestPromise('http://localhost:3000/sessions/new-session', { json: true })
-        .then((response) => {
-            resolve(response['Session-ID']);
-        }).catch((error) => {
-            ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'Could not fetch new session id', ErrorSystem.stacktrace(error));
-            reject(error);
-        });
-    });
-}
-
-function setResponseHeaderToSetCookie(res, cookieValue) {
+function setResponseHeaderToSetAccountCookie(res, cookieValue) {
     res.cookie(ApplicationVariables.USER_ACCOUNT_COOKIE_NAME, cookieValue, {
         maxAge: ApplicationVariables.USER_ACCOUNT_COOKIE_MAX_AGE,
         path: '/',

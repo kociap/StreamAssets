@@ -11,9 +11,10 @@ const RandomHashService = require('../RandomHashService.js');
 app.get('/youtube/login', (req, res) => {
     let accountID = req.cookies[ApplicationVariables.USER_ACCOUNT_COOKIE_NAME];
     if(!accountID) {
-        accountID = Cookies.getNewAccountToken();
-        Cookies.setResponseHeaderToSetCookie(res, accountID);
+        accountID = RandomHashService.generateUserToken();
     }
+    
+    Cookies.setResponseHeaderToSetAccountCookie(res, accountID);
 
     res.redirect(buildURI('https://accounts.google.com/o/oauth2/auth', {
         client_id: ApplicationVariables.CLIENT_ID,

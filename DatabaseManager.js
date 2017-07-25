@@ -95,16 +95,6 @@ function setUserWidgetKey(channelID, widgetKey) {
     });
 }
 
-function findUser(user) {
-    return new Promise((resolve, reject) => {
-        resolve(
-            users.find((userToCompareAgainst) => {
-                return user.equals(userToCompareAgainst);
-            }) || null
-        );
-    });
-}
-
 function findUserByChannelID(channelID) {
     return new Promise((resolve, reject) => {
         resolve(

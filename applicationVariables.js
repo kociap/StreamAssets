@@ -8,8 +8,6 @@ module.exports = {
     
     USER_ACCOUNT_COOKIE_NAME: 'UTK-A',
     USER_ACCOUNT_COOKIE_MAX_AGE: 1000 * 3600 * 24 * 7,
-    USER_SUCCESSFUL_AUTHENTICATION_COOKIE_NAME: 'SEFC-D', // Add additional security level by ensuring user is redirected from /youtube/auth
-    USER_SUCCESSFUL_AUTHENTICATION_COOKIE_MAX_AGE: 1000 * 3600 * 24 * 7,
 
     YOUTUBE_OAUTH_REDIRECT_URI: 'http://localhost:3000/youtube/auth',
     YOUTUBE_API_SCOPE: 'https://www.googleapis.com/auth/youtube',

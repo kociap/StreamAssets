@@ -2,7 +2,7 @@ module.exports = {
     ERROR_LOG_FILE: 'error_log.txt',
     ROOT_DIR: __dirname,
     
-    SERVER_PORT: '3000',
+    SERVER_PORT: 3000,
     DOMAIN: 'http://localhost:3000',
     DOMAIN_NO_PROTOCOL: 'localhost:3000',
     

@@ -36,13 +36,13 @@ function addUser(user) {
 
 /**
  * @param {User} [newUser]
- * @returns {Promise<void, Errors.DatabaseError>}
+ * @returns {Promise<void, Errors.DatabaseAccessFailure>}
  */
 function writeToDatabase(newUser) {
     return new Promise((resolve, reject) => {
         fs.writeFile(usersFile, JSON.stringify((newUser ? users.concat([newUser]) : users)), (error) => {
             if(error) {
-                reject(new Errors.DatabaseError(error));
+                reject(new Errors.DatabaseAccessFailure(error));
                 return;
             }
 

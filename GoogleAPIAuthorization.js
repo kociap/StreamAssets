@@ -30,7 +30,7 @@ module.exports = class GoogleAPIAuthorization {
      * @param {TokenData} tokens 
      * @param {string} scope 
      */
-    setTokenForScope(tokens, scope) {
+    setTokenForScope(scope, tokens) {
         this.tokens[scope] = tokens;
     }
 
@@ -129,7 +129,7 @@ module.exports = class GoogleAPIAuthorization {
         }).then((response) => {
             return new TokenData(response.access_token, response.refresh_token, response.token_type, response.expires_in);
         }).catch((error) => {
-            throw new Errors.AuthorizationError(error);
+            throw new Errors.Authorization(error);
         });
     }
 

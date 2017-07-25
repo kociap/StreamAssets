@@ -8,7 +8,7 @@ module.exports = class User {
      */
     constructor(channelID, tokenData, widgetKey) {
         if(!channelID) {
-            throw new Errors.RequiredArgumentNotSuppliedError('channelID');
+            throw new Errors.RequiredArgumentNotSupplied('channelID');
         }
         
         this.channelID = channelID;

@@ -39,14 +39,4 @@ module.exports = class User {
     getTokenData() {
         return this.tokenData;
     }
-
-    copyAssign(user) {
-        this.channelID = user.channelID;
-        this.widgetKey = user.widgetKey;
-        this.tokenData = user.tokenData;
-    }
-
-    equals(user) {
-        return this.channelID === user.channelID && this.widgetKey === user.widgetKey && this.tokenData === user.tokenData;
-    }
 }

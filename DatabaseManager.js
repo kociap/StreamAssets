@@ -88,13 +88,17 @@ function setUserWidgetKey(channelID, widgetKey) {
             .then(() => {
                 resolve();
             }).catch((error) => {
-               user.widgetKey = oldWidgetKey;
+                user.widgetKey = oldWidgetKey;
                 reject(error)
             });
         });
     });
 }
 
+/**
+ * @param {string} widgetKey 
+ * @returns {Promise<User|null>}
+ */
 function findUserByChannelID(channelID) {
     return new Promise((resolve, reject) => {
         resolve(
@@ -107,6 +111,7 @@ function findUserByChannelID(channelID) {
 
 /**
  * @param {string} widgetKey 
+ * @returns {Promise<User|null>}
  */
 function findUserByWidgetKey(widgetKey) {
     return new Promise((resolve, reject) => {

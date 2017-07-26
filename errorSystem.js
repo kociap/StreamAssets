@@ -23,6 +23,10 @@ let log = (fileName, description, message) => {
  * @returns {string}
  */
 let stacktrace = (message) => {
+    if(message instanceof Error) {
+        return message.stack;
+    }
+    
     return new Error(toString(message)).stack.replace(/(\t+|[ ]+)at.+?\(.+?\)\n/, '');
 };
 

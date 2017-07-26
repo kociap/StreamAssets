@@ -8,69 +8,94 @@ class FinalClass extends Error {
 }
 
 class AbstractClass extends Error {
-    constructor(message) {
+    constructor(className) {
         if(new.target !== 'AbstractClass') {
             throw new FinalClass(new.target);
         }
-        super(message);
+        super(className + ' is an abstract class and may not be constructed!');
     }
 }
 
 
-class Database extends Error {
+class DatabaseError extends Error {
     constructor(message) {
-        if(new.target === 'Database') {
-            throw new AbstractClass('Database is an abstract class and may not be constructed!');
+        if(new.target === 'DatabaseError') {
+            throw new AbstractClass('DatabaseError');
         }
 
         super(message);
     }
 }
 
-class DatabaseAccessFailure extends Database {
+class DatabaseAccessFailure extends DatabaseError {
     constructor(message) {
         super(message);
     }
 }
 
-class NullField extends Database {
+class NullField extends DatabaseError {
     constructor(fieldName) {
-        super('Field ' + fieldName + 'was declared as "not null" but null was given');
+        super('Field ' + fieldName + 'was declared as "not null" but null was given!');
     }
 }
 
-class EntityDoesNotExist extends Database {
+class EntityDoesNotExist extends DatabaseError {
     constructor() {
-        super('Requested entity doesn\'t exist');
+        super('Requested entity doesn\'t exist!');
     }
 }
 
-class Request extends Error {
+class RequestError extends Error {
     constructor(message) {
         super(message);
     }
 };
 
-class Authorization extends Request {
+class AuthorizationError extends RequestError {
     constructor(message) {
         super(message);
     }
 };
+
+class UnauthorizedWidgetKey extends RequestError {
+    constructor(widgetKey) {
+        super(widgetKey + ' is not an authorized key!');
+    }
+}
 
 class RequiredArgumentNotSupplied extends Error {
     constructor(argumentName) {
-        super('The required field ' + argumentName + ' was not supplied');
+        super('The required field ' + argumentName + ' was not supplied!');
+    }
+}
+
+class WidgetError extends Error {
+    constructor(message) {
+        if(new.target === 'WidgetError') {
+            throw new AbstractClass('WidgetError');
+        }
+
+        super(message);
+    }
+}
+
+class UnexpectedDisconnection extends WidgetError {
+    constructor(message) {
+        super(message);
     }
 }
 
 module.exports = {
     FinalClass: FinalClass,
     AbstractClass: AbstractClass,
-    Database: Database,
+    DatabaseError: DatabaseError,
     DatabaseAccessFailure: DatabaseAccessFailure,
     NullField: NullField,
     EntityDoesNotExist: EntityDoesNotExist,
-    Request: Request,
-    Authorization: Authorization,
-    RequiredArgumentNotSupplied: RequiredArgumentNotSupplied
+    RequestError: RequestError,
+    AuthorizationError: AuthorizationError,
+    UnauthorizedWidgetKey: UnauthorizedWidgetKey,
+    RequiredArgumentNotSupplied: RequiredArgumentNotSupplied,
+    WidgetError: WidgetError,
+    UnexpectedDisconnection: UnexpectedDisconnection
 };

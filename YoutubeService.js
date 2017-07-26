@@ -58,7 +58,7 @@ module.exports = class YoutubeService {
                 mine: 'true' 
             }
         }).catch((error) => {
-            throw new Errors.Request(error);
+            throw new Errors.RequestError(error);
         }).then((response) => {
             return response.items[0].id;
         });

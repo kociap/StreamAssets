@@ -1,11 +1,10 @@
-// const TokenRepository = require('./TokenRepository.js');
-const GoogleAPIAuthorization = require("./GoogleAPIAuthorization.js");
-const TokenData = require('./TokenData.js');
 const ErrorSystem = require('./errorSystem.js');
 const ApplicationVariables = require('./ApplicationVariables.js');
 const YoutubeService = require('./YoutubeService.js');
-const requestPromise = require('request-promise');
-const SessionManager = require('./SessionManager.js');
+const DatabaseManager = require('./DatabaseManager.js');
+const SocketRoom = require('./SocketRoom');
+const Errors = require('./Errors');
+const HttpStatus = require('./HttpStatus');
 
 const REQUEST_TIMEOUT = 500;
 
@@ -21,36 +20,58 @@ let rooms = {};
  */
 function init(io) {
     if(initialized) {
-        throw new Error("RoomsController has already been initialized");
+        throw new Error("RoomsController has already been initialized!");
     }
 
     initialized = true;
     _io = io;
     _io.on('connection', (client) => {
-        client.on('room-change', (roomName) => {
-            // Widget connected
-            let sessionID = roomName;
-            if(!(roomName in rooms)) {
-                rooms[roomName] = new SocketRoom(_io, roomName, REQUEST_TIMEOUT);
-                let requestAuthorizer = new GoogleAPIAuthorization();
-                requestAuthorizer.setRedirectURI(ApplicationVariables.DOMAIN + '/authenticatio-finalizing/' + sessionID);
-                requestAuthorizer.setTokenForScope(SessionManager.getSession(sessionID).getPrivateData('Token-Data'), ApplicationVariables.YOUTUBE_API_SCOPE);
-                let youtubeService = new YoutubeService(requestAuthorizer, SessionManager.getSession(sessionID));
-                rooms[roomName].setChannelService();
-            }
-            rooms[roomName].connectWidget(client);
-            rooms[roomName].start();
+        client.on('room-change', (roomName) => { // Widget has connected
+            Promise.resolve().then(() => {
+                client.on('disconnecting', prematureDisconnection);
+                return DatabaseManager.findUserByWidgetKey(roomName);
+            }).then((user) => {
+                if(user === null) {
+                    throw new Errors.UnauthorizedWidgetKey(roomName);
+                }
 
-            client.on('disconnecting', () => {
-                rooms[roomName].disconnectWidget(client);
-                if(rooms[roomName].size() == 0) {
-                    // Delete if no widgets are connected
-                    roomsRequesters[roomName].stop();
-                    delete roomsRequesters[roomName];
+                return user;
+            }).then((user) => {
+                if(!roomExists()) {
+                    let youtubeService = new YoutubeService(user.getChannelID(), user.getTokenData());
+                    rooms[roomName] = new SocketRoom(_io, roomName, REQUEST_TIMEOUT);
+                    rooms[roomName].setChannelService(youtubeService);
+                }
+
+                rooms[roomName].connectWidget(client);
+                rooms[roomName].start();
+
+                client.on('disconnecting', () => {
+                    rooms[roomName].disconnectWidget(client);
+                    if(rooms[roomName].isEmpty()) {
+                        rooms[roomName].stop();
+                        delete rooms[roomName];
+                    }
+                });
+                client.removeListener('disconnecting', prematureDisconnection);
+            }).catch((error) => {
+                if(error instanceof Errors.DatabaseError) {
+                    client.emit('server-error', { code: HttpStatus.INTERNAL_SERVER_ERROR, message: 'Server could not process widget connection'})
+                    ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, error.message, error.stack);
+                } else if(error instanceof Errors.UnauthorizedWidgetKey) {
+                    client.emit('not-logged-in', { code: HttpStatus.FORBIDDEN, message: 'Server could not process widget connection'})
                 }
             });
+
+            function prematureDisconnection() {
+                throw new Errors.UnexpectedDisconnection('Widget disconnected unexpectedly!');
+            }
         });
     });
+}
+
+function roomExists(roomName) {
+    return rooms.hasOwnProperty(roomName);
 }
 
 module.exports = {

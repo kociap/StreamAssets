@@ -23,13 +23,19 @@ module.exports = class SocketRoom {
         return this.numberOfConnectedWidgets;
     }
 
+    isEmpty() {
+        return this.numberOfConnectedWidgets === 0;
+    }
+
     setChannelService(channelService) {
         this.channelService = channelService;
     }
 
     start() {
-        this.run = true;
-        this.requestData();
+        if(!this.run) {
+            this.run = true;
+            this.requestData();
+        }
     }
 
     stop() {
@@ -45,7 +51,6 @@ module.exports = class SocketRoom {
 
         let channelStatistics = this.channelService.getChannelStatistics()
         .then((statistics) => {
-            // Send obtained data to client
             this.io.to(this.roomName).emit('channel-statistics-update', statistics);
         }).catch((error) => {
             ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'Could not fetch channel statistics', ErrorSystem.stacktrace(error));
@@ -53,18 +58,18 @@ module.exports = class SocketRoom {
 
         let recentSubscribers = this.channelService.getRecentSubscribers()
         .then((subscribers) => {
-            // Send obtained data to client
             this.io.to(this.roomName).emit('channel-subscribers-update', subscribers);
         }).catch((error) => {
             ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, 'Could not fetch channel subscribers', ErrorSystem.stacktrace(error));
         });
 
-        // Update after timeout once all requests are done
+        // Call recursively once all requests are fulfilled and specified time has passed
         Promise.all([channelStatistics, recentSubscribers]).then(() => {
             if(Date.now() - time >= this.timeout) {
                 this.requestData();
             } else {
-                setTimeout(() => {
+                let _timeout = setTimeout(() => {
+                    clearTimeout(_timeout);
                     this.requestData();
                 }, this.timeout - (Date.now() - time));
             }

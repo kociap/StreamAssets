@@ -1,4 +1,4 @@
-class FinalClass extends Error {
+module.exports.FinalClass = class FinalClass extends Error {
     constructor(className) {
         if(new.target !== 'FinalClass') {
             throw new FinalClass(new.target);
@@ -7,7 +7,7 @@ class FinalClass extends Error {
     }
 }
 
-class AbstractClass extends Error {
+module.exports.AbstractClass = class AbstractClass extends Error {
     constructor(className) {
         if(new.target !== 'AbstractClass') {
             throw new FinalClass(new.target);
@@ -17,7 +17,7 @@ class AbstractClass extends Error {
 }
 
 
-class DatabaseError extends Error {
+module.exports.DatabaseError = class DatabaseError extends Error {
     constructor(message) {
         if(new.target === 'DatabaseError') {
             throw new AbstractClass('DatabaseError');
@@ -27,49 +27,55 @@ class DatabaseError extends Error {
     }
 }
 
-class DatabaseAccessFailure extends DatabaseError {
+module.exports.DatabaseAccessFailure = class DatabaseAccessFailure extends DatabaseError {
     constructor(message) {
         super(message);
     }
 }
 
-class NullField extends DatabaseError {
+module.exports.NullField = class NullField extends DatabaseError {
     constructor(fieldName) {
         super('Field ' + fieldName + 'was declared as "not null" but null was given!');
     }
 }
 
-class EntityDoesNotExist extends DatabaseError {
+module.exports.EntityDoesNotExist = class EntityDoesNotExist extends DatabaseError {
     constructor() {
         super('Requested entity doesn\'t exist!');
     }
 }
 
-class RequestError extends Error {
+module.exports.RequestError = class RequestError extends Error {
     constructor(message) {
         super(message);
     }
 };
 
-class AuthorizationError extends RequestError {
+module.exports.AuthorizationError = class AuthorizationError extends RequestError {
     constructor(message) {
         super(message);
     }
 };
 
-class UnauthorizedWidgetKey extends RequestError {
+module.exports.RefreshError = class RefreshError extends RequestError {
+    constructor(message) {
+        super(message);
+    }
+}
+
+module.exports.UnauthorizedWidgetKey = class UnauthorizedWidgetKey extends RequestError {
     constructor(widgetKey) {
         super(widgetKey + ' is not an authorized key!');
     }
 }
 
-class RequiredArgumentNotSupplied extends Error {
+module.exports.RequiredArgumentNotSupplied = class RequiredArgumentNotSupplied extends Error {
     constructor(argumentName) {
         super('The required field ' + argumentName + ' was not supplied!');
     }
 }
 
-class WidgetError extends Error {
+module.exports.WidgetError = class WidgetError extends Error {
     constructor(message) {
         if(new.target === 'WidgetError') {
             throw new AbstractClass('WidgetError');
@@ -79,23 +85,8 @@ class WidgetError extends Error {
     }
 }
 
-class UnexpectedDisconnection extends WidgetError {
+module.exports.UnexpectedDisconnection = class UnexpectedDisconnection extends WidgetError {
     constructor(message) {
         super(message);
     }
 }
-
-module.exports = {
-    FinalClass: FinalClass,
-    AbstractClass: AbstractClass,
-    DatabaseError: DatabaseError,
-    DatabaseAccessFailure: DatabaseAccessFailure,
-    NullField: NullField,
-    EntityDoesNotExist: EntityDoesNotExist,
-    RequestError: RequestError,
-    AuthorizationError: AuthorizationError,
-    UnauthorizedWidgetKey: UnauthorizedWidgetKey,
-    RequiredArgumentNotSupplied: RequiredArgumentNotSupplied,
-    WidgetError: WidgetError,
-    UnexpectedDisconnection: UnexpectedDisconnection
-};

@@ -2,10 +2,18 @@ const ApplicationVariables = require('./ApplicationVariables.js');
 const errorSystem = require("./errorSystem.js");
 const GoogleAPIAuthorization = require('./GoogleAPIAuthorization.js');
 const Errors = require('./Errors.js');
+const DatabaseManager = require('./DatabaseManager');
 
 const YotubeScopes = {
     CHANNELS: 'https://www.googleapis.com/youtube/v3/channels',
     SUBSCRIPTIONS: 'https://www.googleapis.com/youtube/v3/subscriptions'
+}
+
+function refreshAccessTokenAndSaveToDatabase(refreshToken, channelID) {
+    return GoogleAPIAuthorization.refreshAccessToken(this.tokenData.refreshToken)
+           .then((tokenData) => {
+                return DatabaseManager.setUserTokenData(this.channelID, tokenData);
+           });
 }
 
 module.exports = class YoutubeService {
@@ -45,6 +53,10 @@ module.exports = class YoutubeService {
             return response.items[0].id;
         }).catch((error) => {
             throw new Errors.RequestError(error);
+        }).catch((error) => {
+            return refreshAccessTokenAndSaveToDatabase(this.tokenData.accessToken, this.channelID).then(() => {
+                throw error; // Rethrow error
+            });
         });
     }
 
@@ -64,6 +76,10 @@ module.exports = class YoutubeService {
             }
         }).then((response) => {
             return response.items[0].statistics;
+        }).catch((error) => {
+            return refreshAccessTokenAndSaveToDatabase(this.tokenData.accessToken, this.channelID).then(() => {
+                throw error; // Rethrow error
+            });
         });
     }
 
@@ -83,6 +99,10 @@ module.exports = class YoutubeService {
             }
         }).then((response) => {
             return response.items;
+        }).catch((error) => {
+            return refreshAccessTokenAndSaveToDatabase(this.tokenData.accessToken, this.channelID).then(() => {
+                throw error; // Rethrow error
+            });
         });
     }
 }

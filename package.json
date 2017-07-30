@@ -15,6 +15,7 @@
   },
   "homepage": "https://github.com/kociap/StreamingAssets#readme",
   "devDependencies": {
+    "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "gulp": "github:gulpjs/gulp#4.0",

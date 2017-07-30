@@ -1,4 +1,4 @@
-module.exports.FinalClass = class FinalClass extends Error {
+class FinalClass extends Error {
     constructor(className) {
         if(new.target !== 'FinalClass') {
             throw new FinalClass(new.target);
@@ -6,8 +6,9 @@ module.exports.FinalClass = class FinalClass extends Error {
         super("Final class " + className + " may not be extended!");
     }
 }
+module.exports.FinalClass = FinalClass;
 
-module.exports.AbstractClass = class AbstractClass extends Error {
+class AbstractClass extends Error {
     constructor(className) {
         if(new.target !== 'AbstractClass') {
             throw new FinalClass(new.target);
@@ -15,9 +16,9 @@ module.exports.AbstractClass = class AbstractClass extends Error {
         super(className + ' is an abstract class and may not be constructed!');
     }
 }
+module.exports.AbstractClass = AbstractClass;
 
-
-module.exports.DatabaseError = class DatabaseError extends Error {
+class DatabaseError extends Error {
     constructor(message) {
         if(new.target === 'DatabaseError') {
             throw new AbstractClass('DatabaseError');
@@ -26,56 +27,65 @@ module.exports.DatabaseError = class DatabaseError extends Error {
         super(message);
     }
 }
+module.exports.DatabaseError = DatabaseError;
 
-module.exports.DatabaseAccessFailure = class DatabaseAccessFailure extends DatabaseError {
+class DatabaseAccessFailure extends DatabaseError {
     constructor(message) {
         super(message);
     }
 }
+module.exports.DatabaseAccessFailure = DatabaseAccessFailure;
 
-module.exports.NullField = class NullField extends DatabaseError {
+class NullField extends DatabaseError {
     constructor(fieldName) {
         super('Field ' + fieldName + 'was declared as "not null" but null was given!');
     }
 }
+module.exports.NullField = NullField;
 
-module.exports.EntityDoesNotExist = class EntityDoesNotExist extends DatabaseError {
+class EntityDoesNotExist extends DatabaseError {
     constructor() {
         super('Requested entity doesn\'t exist!');
     }
 }
+module.exports.EntityDoesNotExist = EntityDoesNotExist;
 
-module.exports.RequestError = class RequestError extends Error {
+class RequestError extends Error {
     constructor(message) {
         super(message);
     }
 };
+module.exports.RequestError = RequestError;
 
-module.exports.AuthorizationError = class AuthorizationError extends RequestError {
+class AuthorizationError extends RequestError {
     constructor(message) {
         super(message);
     }
 };
+module.exports.AuthorizationError = AuthorizationError;
 
-module.exports.RefreshError = class RefreshError extends RequestError {
+class RefreshError extends RequestError {
     constructor(message) {
         super(message);
     }
 }
+module.exports.RefreshError = RefreshError;
 
-module.exports.UnauthorizedWidgetKey = class UnauthorizedWidgetKey extends RequestError {
+class UnauthorizedWidgetKey extends RequestError {
     constructor(widgetKey) {
         super(widgetKey + ' is not an authorized key!');
     }
 }
+module.exports.UnauthorizedWidgetKey = UnauthorizedWidgetKey;
 
-module.exports.RequiredArgumentNotSupplied = class RequiredArgumentNotSupplied extends Error {
+class RequiredArgumentNotSupplied extends Error {
     constructor(argumentName) {
         super('The required field ' + argumentName + ' was not supplied!');
     }
 }
+module.exports.RequiredArgumentNotSupplied = RequiredArgumentNotSupplied;
 
-module.exports.WidgetError = class WidgetError extends Error {
+class WidgetError extends Error {
     constructor(message) {
         if(new.target === 'WidgetError') {
             throw new AbstractClass('WidgetError');
@@ -84,9 +94,11 @@ module.exports.WidgetError = class WidgetError extends Error {
         super(message);
     }
 }
+module.exports.WidgetError = WidgetError;
 
-module.exports.UnexpectedDisconnection = class UnexpectedDisconnection extends WidgetError {
+class UnexpectedDisconnection extends WidgetError {
     constructor(message) {
         super(message);
     }
 }
+module.exports.UnexpectedDisconnection = UnexpectedDisconnection;

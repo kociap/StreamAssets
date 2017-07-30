@@ -1,5 +1,4 @@
 const ErrorSystem = require('./errorSystem');
-const DatabaseManager = require('./DatabaseManager');
 const Promise = require('bluebird');
 
 module.exports = class SocketRoom {

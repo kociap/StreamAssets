@@ -6,8 +6,6 @@ const SocketRoom = require('./SocketRoom');
 const Errors = require('./Errors');
 const HttpStatus = require('./HttpStatus');
 
-const REQUEST_TIMEOUT = 500;
-
 let _io = null;
 let initialized = false;
 
@@ -23,37 +21,44 @@ function init(io) {
         throw new Error("RoomsController has already been initialized!");
     }
 
+    if(!io) {
+        throw new Errors.RequiredArgumentNotSupplied("io");
+    }
+
     initialized = true;
     _io = io;
     _io.on('connection', (client) => {
         client.on('room-change', (roomName) => { // Widget has connected
-            Promise.resolve().then(() => {
-                client.on('disconnecting', prematureDisconnection);
-                return DatabaseManager.findUserByWidgetKey(roomName);
-            }).then((user) => {
-                if(user === null) {
-                    throw new Errors.UnauthorizedWidgetKey(roomName);
-                }
+            let widgetKey = roomName; // Room name is also the widgetKey of the user
+            let prematurelyDisconnected = false;
 
-                return user;
-            }).then((user) => {
+            client.on('disconnecting', prematureDisconnection);
+            
+            Promise.resolve()
+            .then(DatabaseManager.findUserByWidgetKey)
+            .then(checkIfUserWasFound)
+            .then((user) => {
                 if(!roomExists()) {
                     let youtubeService = new YoutubeService(user.getChannelID(), user.getTokenData());
-                    rooms[roomName] = new SocketRoom(_io, roomName, REQUEST_TIMEOUT);
+                    rooms[roomName] = new SocketRoom(_io, roomName, ApplicationVariables.DATA_REQUEST_TIMEOUT);
                     rooms[roomName].setChannelService(youtubeService);
                 }
 
                 rooms[roomName].connectWidget(client);
                 rooms[roomName].start();
 
+                client.removeListener('disconnecting', prematureDisconnection);
+
+                if(prematurelyDisconnected) {
+                    rooms[roomName].disconnectWidget(client);
+                    deleteRoomIfEmpty();
+                    throw new Errors.UnexpectedDisconnection("Widget disconnected unexpectedly!");
+                }
+
                 client.on('disconnecting', () => {
                     rooms[roomName].disconnectWidget(client);
-                    if(rooms[roomName].isEmpty()) {
-                        rooms[roomName].stop();
-                        delete rooms[roomName];
-                    }
+                    deleteRoomIfEmpty();
                 });
-                client.removeListener('disconnecting', prematureDisconnection);
             }).catch((error) => {
                 if(error instanceof Errors.DatabaseError) {
                     client.emit('server-error', { code: HttpStatus.INTERNAL_SERVER_ERROR, message: 'Server could not process widget connection'})
@@ -64,7 +69,26 @@ function init(io) {
             });
 
             function prematureDisconnection() {
-                throw new Errors.UnexpectedDisconnection('Widget disconnected unexpectedly!');
+                prematurelyDisconnected = true;
+            }
+
+            function checkIfUserWasFound(user) {
+                if(user === null) {
+                    throw new Errors.UnauthorizedWidgetKey(widgetKey);
+                } else {
+                    return user;
+                }
+            }
+
+            function findUserByWidgetKey() {
+                return DatabaseManager.findUserByWidgetKey(widgetKey);
+            }
+
+            function deleteRoomIfEmpty(roomName) {
+                if(rooms[roomName].isEmpty()) {
+                    rooms[roomName].stop();
+                    delete rooms[roomName];
+                }
             }
         });
     });

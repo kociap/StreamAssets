@@ -1,4 +1,6 @@
-const ErrorSystem = require('./errorSystem.js');
+const ErrorSystem = require('./errorSystem');
+const DatabaseManager = require('./DatabaseManager');
+const Promise = require('bluebird');
 
 module.exports = class SocketRoom {
     constructor(io, roomName, timeout) {
@@ -68,10 +70,7 @@ module.exports = class SocketRoom {
             if(Date.now() - time >= this.timeout) {
                 this.requestData();
             } else {
-                let _timeout = setTimeout(() => {
-                    clearTimeout(_timeout);
-                    this.requestData();
-                }, this.timeout - (Date.now() - time));
+                Promise.delay(this.timeout - (Date.now() - time)).then(this.requestData);
             }
         });        
     }

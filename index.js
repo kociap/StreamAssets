@@ -17,13 +17,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-require('./Router.js').setRouter(app);
 const ApplicationVariables = require('./ApplicationVariables.js');
 
 // Request mapping
 require('./RequestMapping/RequestMapper.js');
-require('./RequestMapping/Sessions.js');
 require('./RequestMapping/UserAuthentication.js');
+require('./widgets/WidgetsRequestMapper');
+
 
 const RoomsController = require('./RoomsController.js');
 RoomsController.init(io);

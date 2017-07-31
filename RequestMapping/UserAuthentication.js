@@ -1,14 +1,14 @@
 const ApplicationVariables = require('../ApplicationVariables.js');
 const ErrorSystem = require('../errorSystem.js');
 const buildURI = require('../utility.js').buildURI;
-const app = require('../Router.js').getRouter();
+const Router = require('../Router.js').getRouter();
 const Cookies = require('./Cookies.js');
 const YoutubeService = require('../YoutubeService.js');
 const DatabaseManager = require('../DatabaseManager.js');
 const User = require('../User.js');
 const RandomHashService = require('../RandomHashService.js');
 
-app.get('/youtube/login', (req, res) => {
+Router.get('/youtube/login', (req, res) => {
     let accountID = req.cookies[ApplicationVariables.USER_ACCOUNT_COOKIE_NAME];
     if(!accountID) {
         accountID = RandomHashService.generateUserToken();
@@ -25,7 +25,7 @@ app.get('/youtube/login', (req, res) => {
     }));
 });
 
-app.get('/youtube/auth', (req, res) => {
+Router.get('/youtube/auth', (req, res) => {
     let accountID = req.cookies[ApplicationVariables.USER_ACCOUNT_COOKIE_NAME];
     let code = req.query['code'];
     if(!accountID) {

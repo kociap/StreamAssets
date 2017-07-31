@@ -1,12 +1,12 @@
-const app = require('../Router.js').getRouter();
+const Router = require('../Router.js').getRouter();
 const ApplicationVariables = require('../ApplicationVariables.js');
 const Cookies = require('./Cookies.js');
 
-app.get('/', (req, res) => {
+Router.get('/', (req, res) => {
     res.sendFile(ApplicationVariables.ROOT_DIR + '/index.html');
 });
 
-app.get('/dashboard', (req, res) => {
+Router.get('/dashboard', (req, res) => {
     if(Cookies.hasAccountCookie(req)) {
         Cookies.setResponseHeaderToSetAccountCookie(res, Cookies.getAccountCookie(req));
         res.sendFile(ApplicationVariables.ROOT_DIR + '/dashboard.html');
@@ -15,26 +15,26 @@ app.get('/dashboard', (req, res) => {
     }
 });
 
-app.get('/client-library/:fileName', (req, res) => {
+Router.get('/client-library/:fileName', (req, res) => {
     res.sendFile(ApplicationVariables.ROOT_DIR + '/client-lib/' + req.params.fileName);
 });
 
-app.get(/[^/]+\.html/, (req, res) => {
+Router.get(/[^/]+\.html/, (req, res) => {
     res.sendFile(ApplicationVariables.ROOT_DIR + req.path, { headers: {"Content-Type": "text/html"} });
 });
 
-app.get('/LiveSubscribersCounter', (req, res) => {
-    res.sendFile(ApplicationVariables.ROOT_DIR + '/modules/LiveSubscribersCounter/index.html');
+Router.get('/LiveSubscribersCounter', (req, res) => {
+    res.sendFile(ApplicationVariables.ROOT_DIR + '/widgets/LiveSubscribersCounter/index.html', { headers: {"Content-Type": "text/html"} });
 });
 
-app.get('/LiveSubscribersCounter/script.js', (req, res) => {
-    res.sendFile(ApplicationVariables.ROOT_DIR + '/modules/LiveSubscribersCounter/LiveSubscribersCounter.js', { headers: {"Content-Type": "text/javascript"} });
+Router.get('/LiveSubscribersCounter/script.js', (req, res) => {
+    res.sendFile(ApplicationVariables.ROOT_DIR + '/widgets/LiveSubscribersCounter/LiveSubscribersCounter.js', { headers: {"Content-Type": "text/javascript"} });
 });
 
-app.get(/[^/\\]+\.js/, (req, res) => {
+Router.get(/[^/\\]+\.js/, (req, res) => {
     res.sendFile(ApplicationVariables.ROOT_DIR + req.path, { headers: {"Content-Type": "text/javascript"} });
 });
 
-app.get('/css/:fileName', (req, res) => {
-    res.sendFile(ApplicationVariables.ROOT_DIR + '/CSS/' + req.params.fileName);
+Router.get('/css/:fileName', (req, res) => {
+    res.sendFile(ApplicationVariables.ROOT_DIR + '/CSS/' + req.params.fileName, { headers: {"Content-Type": "text/css"} });
 });

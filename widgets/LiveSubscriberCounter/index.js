@@ -10,12 +10,11 @@
         document.querySelector('#subscribers-count').innerHTML = subscribersCount;
     }
 
-    let userID = 'abcdefghijklmnn';
+    let widgetKey = location.href.split('/').pop();
+    console.log(widgetKey);
 
     const streamAssets = new io();
-    streamAssets.on('connect', () => {
-        streamAssets.emit('youtube-room', userID);
-    });
+    streamAssets.emit('room-change', widgetKey);
 
     streamAssets.on('subscribers', (subscribers) => {
         console.log(subscribers);

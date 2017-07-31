@@ -116,7 +116,7 @@ function findUserByChannelID(channelID) {
 function findUserByWidgetKey(widgetKey) {
     return new Promise((resolve, reject) => {
         resolve(
-            usersFile.find((user) => {
+            users.find((user) => {
                 return user.widgetKey === widgetKey;
             }) || null
         );

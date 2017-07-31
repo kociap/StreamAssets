@@ -1,9 +1,12 @@
 let app = null;
-module.exports = {
+let RouterModule = {
     setRouter: (router) => {
         app = router;
+        return RouterModule;
     },
     getRouter: () => {
         return app;
     }
 }
+
+module.exports = RouterModule;

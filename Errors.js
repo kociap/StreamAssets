@@ -1,3 +1,7 @@
+/**
+ * Error thrown when another class tries to
+ *    extend final class
+ */
 class FinalClass extends Error {
     constructor(className) {
         if(new.target !== 'FinalClass') {
@@ -8,6 +12,10 @@ class FinalClass extends Error {
 }
 module.exports.FinalClass = FinalClass;
 
+/**
+ * Error thrown when there was an attempt to instantiate
+ *    an abstract class
+ */
 class AbstractClass extends Error {
     constructor(className) {
         if(new.target !== 'AbstractClass') {
@@ -18,6 +26,10 @@ class AbstractClass extends Error {
 }
 module.exports.AbstractClass = AbstractClass;
 
+/**
+ * Generic error class for database.
+ * Abstract class
+ */
 class DatabaseError extends Error {
     constructor(message) {
         if(new.target === 'DatabaseError') {
@@ -57,12 +69,12 @@ class RequestError extends Error {
 };
 module.exports.RequestError = RequestError;
 
-class AuthorizationError extends RequestError {
+class GoogleAPIAuthorizationError extends RequestError {
     constructor(message) {
         super(message);
     }
 };
-module.exports.AuthorizationError = AuthorizationError;
+module.exports.GoogleAPIAuthorizationError = GoogleAPIAuthorizationError;
 
 class RefreshError extends RequestError {
     constructor(message) {
@@ -77,6 +89,13 @@ class UnauthorizedWidgetKey extends RequestError {
     }
 }
 module.exports.UnauthorizedWidgetKey = UnauthorizedWidgetKey;
+
+class UnauthorizedAccess extends Error {
+    constructor(message) {
+        super(message);
+    }
+}
+module.exports.UnauthorizedAccess = UnauthorizedAccess;
 
 class RequiredArgumentNotSupplied extends Error {
     constructor(argumentName) {
@@ -102,3 +121,17 @@ class UnexpectedDisconnection extends WidgetError {
     }
 }
 module.exports.UnexpectedDisconnection = UnexpectedDisconnection;
+
+class InvalidURI extends Error {
+    constructor(message) {
+        super(message);
+    }
+}
+module.exports.InvalidURI = InvalidURI;
+
+class MissingQueryParameter extends InvalidURI {
+    constructor(queryParamName) {
+        super('Query parameter ' + queryParamName + ' is missing!');
+    }
+}
+module.exports.MissingQueryParameter = MissingQueryParameter;

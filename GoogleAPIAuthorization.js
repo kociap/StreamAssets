@@ -27,7 +27,7 @@ module.exports = class GoogleAPIAuthorization {
         }).then((response) => {
             return new TokenData(response.access_token, response.refresh_token, response.token_type, response.expires_in);
         }).catch((error) => {
-            throw new Errors.AuthorizationError(error);
+            throw new Errors.GoogleAPIAuthorizationError(error);
         });
     }
 

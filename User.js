@@ -5,8 +5,9 @@ module.exports = class User {
      * @param {string} channelID
      * @param {string|null} [widgetKey]
      * @param {TokenData|null} [tokenData]
+     * @param {string|null} [accountToken]
      */
-    constructor(channelID, tokenData, widgetKey) {
+    constructor(channelID, tokenData, widgetKey, accountToken) {
         if(!channelID) {
             throw new Errors.RequiredArgumentNotSupplied('channelID');
         }
@@ -14,6 +15,7 @@ module.exports = class User {
         this.channelID = channelID;
         this.tokenData = tokenData || null;
         this.widgetKey = widgetKey || null;
+        this.accountToken = accountToken || null;
     }
 
     setChannelID(channelID) {
@@ -38,5 +40,13 @@ module.exports = class User {
 
     getTokenData() {
         return this.tokenData;
+    }
+
+    setAccoutToken(accountToken) {
+        this.accountToken = accountToken;
+    }
+
+    getAccountToken() {
+        return this.accountToken;
     }
 }

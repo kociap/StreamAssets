@@ -1,4 +1,5 @@
 module.exports = {
+    LOG_FILE: 'error_log.txt',
     ERROR_LOG_FILE: 'error_log.txt',
     ROOT_DIR: __dirname,
     
@@ -15,5 +16,7 @@ module.exports = {
     CLIENT_ID: '1095826790210-nioob90omr0ibu8fu249jkgqjktqgh7u.apps.googleusercontent.com',
     CLIENT_SECRET: 'fFQdWdHZ6rxxqeFG0yXlVHBA',
 
-    DATA_REQUEST_TIMEOUT: 500
+    DATA_REQUEST_TIMEOUT: 500,
+
+    WIDGETS_SOCKET_NAMESPACE: '/widgets'
 };

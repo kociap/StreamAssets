@@ -8,13 +8,13 @@ Router.get('/LiveSubscriberCounter/:widgetKey', (req, res) => {
     DatabaseManager.findUserByWidgetKey(widgetKey)
     .then((user) => {
         if(user === null) {
-            res.code(HttpStatus.FORBIDDEN)
+            res.status(HttpStatus.FORBIDDEN)
                .json({ code: HttpStatus.FORBIDDEN, message: 'Invalid widget token' });
         } else {
             res.sendFile(ApplicationVariables.ROOT_DIR + '/widgets/LiveSubscriberCounter/index.html', { headers: { 'Content-Type': 'text/html' } });
         }
     }).catch((error) => {
-        res.code(HttpStatus.INTERNAL_SERVER_ERROR)
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR)
            .json({ code: HttpStatus.INTERNAL_SERVER_ERROR, message: 'Server failed to process request' });
     });
 });

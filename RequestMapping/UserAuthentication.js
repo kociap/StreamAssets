@@ -40,7 +40,7 @@ Router.get('/youtube/auth', (req, res) => {
     authorizeAndGenerateUserDataAndSave(code, accountID).then(() => {
         res.redirect('/dashboard');
     }).catch((error) => {
-        ErrorSystem.log(ApplicationVariables.ERROR_LOG_FILE, "", error.stack);
+        ErrorSystem.log.error(error);
         removeCookieAndRedirect();
     });
 
@@ -50,14 +50,16 @@ Router.get('/youtube/auth', (req, res) => {
     }
 });
 
-function authorizeAndGenerateUserDataAndSave(code, accountID) {
+function authorizeAndGenerateUserDataAndSave(code, accountToken) {
     return YoutubeService.authorizeAccessCode(code)
            .then((tokenData) => {
                 return YoutubeService.getChannelIDWithToken(tokenData.accessToken)
                        .then((channelID) => {
-                            return DatabaseManager.setUserTokenData(channelID, tokenData)
-                                   .catch((error) => {
-                                        return DatabaseManager.addUser(new User(channelID, tokenData, RandomHashService.generateWidgetKey()));
+                            return DatabaseManager.setUserProperties(channelID, {
+                                        tokenData: tokenData,
+                                        accountToken: accountToken
+                                   }).catch((error) => {
+                                        return DatabaseManager.addUser(new User(channelID, tokenData, RandomHashService.generateWidgetKey(), accountToken));
                                    });
                        });
            });

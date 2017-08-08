@@ -10,9 +10,9 @@ const YotubeScopes = {
 }
 
 function refreshAccessTokenAndSaveToDatabase(refreshToken, channelID) {
-    return GoogleAPIAuthorization.refreshAccessToken(this.tokenData.refreshToken)
+    return GoogleAPIAuthorization.refreshAccessToken(refreshToken)
            .then((tokenData) => {
-                return DatabaseManager.setUserTokenData(this.channelID, tokenData);
+                return DatabaseManager.setUserTokenData(channelID, tokenData);
            });
 }
 
@@ -54,7 +54,7 @@ module.exports = class YoutubeService {
         }).catch((error) => {
             throw new Errors.RequestError(error);
         }).catch((error) => {
-            return refreshAccessTokenAndSaveToDatabase(this.tokenData.accessToken, this.channelID).then(() => {
+            return refreshAccessTokenAndSaveToDatabase(this.tokenData.refreshToken, this.channelID).then(() => {
                 throw error; // Rethrow error
             });
         });
@@ -77,7 +77,7 @@ module.exports = class YoutubeService {
         }).then((response) => {
             return response.items[0].statistics;
         }).catch((error) => {
-            return refreshAccessTokenAndSaveToDatabase(this.tokenData.accessToken, this.channelID).then(() => {
+            return refreshAccessTokenAndSaveToDatabase(this.tokenData.refreshToken, this.channelID).then(() => {
                 throw error; // Rethrow error
             });
         });
@@ -100,7 +100,7 @@ module.exports = class YoutubeService {
         }).then((response) => {
             return response.items;
         }).catch((error) => {
-            return refreshAccessTokenAndSaveToDatabase(this.tokenData.accessToken, this.channelID).then(() => {
+            return refreshAccessTokenAndSaveToDatabase(this.tokenData.refreshToken, this.channelID).then(() => {
                 throw error; // Rethrow error
             });
         });

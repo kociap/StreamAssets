@@ -13,12 +13,10 @@
     let widgetKey = location.href.split('/').pop();
     console.log(widgetKey);
 
-    const streamAssets = new io();
-    streamAssets.emit('room-change', widgetKey);
+    const streamAssets = new io(`/widgets?token=${widgetKey}`);
 
-    streamAssets.on('subscribers', (subscribers) => {
-        console.log(subscribers);
-        displaySubscribersCount(subscribers);
+    streamAssets.on('statistics', (statistics) => {
+        console.log(statistics);
     });
 
 })();

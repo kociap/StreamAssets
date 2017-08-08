@@ -8,6 +8,28 @@
 
 <body>
     Dashboard!
+
+    <div id='links'></div>
+    
+    <script src='http://localhost:3000/client-library/request-promise.js'></script>
+    <script src='http://localhost:3000/client-library/Cookies.js'></script>
+    <script>
+        requestPromise({
+            method: 'GET',
+            uri: '/ca/users/props/widgetKey'
+        }).then((widgetKey) => {
+            document.getElementById('links').appendChild(createLinkElement('Live subscriber counter', 'http://localhost:3000/LiveSubscriberCounter/' + widgetKey));
+        }).catch((error) => {
+            console.log(error);
+        });
+
+        function createLinkElement(text, link) {
+            let linkElem = document.createElement('a');
+            linkElem.href = link;
+            linkElem.innerHTML = text;
+            return linkElem;
+        }
+    </script>
 </body>
 
 </html>

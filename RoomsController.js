@@ -36,8 +36,8 @@ function init(io) {
     });
     _io.of(ApplicationVariables.WIDGETS_SOCKET_NAMESPACE)
        .on('connection', (client) => {
-            let roomName = client.handshake.query['token'];
-            let widgetKey = client.handshake.query['token']; // Room name is also the widgetKey of the user
+            const roomName = client.handshake.query['token'];
+            const widgetKey = client.handshake.query['token']; // Room name is also the widgetKey of the user
             let prematurelyDisconnected = false;
 
             client.on('disconnecting', prematureDisconnection);
